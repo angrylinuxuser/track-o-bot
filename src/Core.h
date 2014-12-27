@@ -25,9 +25,6 @@ private:
   int                   mDuration;
   CardHistoryList       mCardHistoryList;
 
-  int                   mRank;
-  int                   mLegend;
-
   bool                  mCurrentResultTracked;
 
   void ResetResult();
@@ -38,16 +35,13 @@ private:
 
 private slots:
   void HandleMatchStart();
-  void HandleMatchEnd( const ::CardHistoryList& cardHistoryList );
+  void HandleMatchEnd( const ::CardHistoryList& cardHistoryList, bool wasSpectating );
 
   void HandleOutcome( Outcome outcome );
   void HandleOwnClass( Class ownClass );
   void HandleOpponentClass( Class opponentClass );
   void HandleOrder( GoingOrder order );
   void HandleGameMode( GameMode mode );
-
-  void HandleRank( int rank );
-  void HandleLegend( int legend );
 
   void Tick();
 

@@ -117,17 +117,15 @@ const char CLASS_NAMES[][128] = {
 
 #define NUM_CLASSES 9
 
-#define RANK_UNKNOWN   0
-#define LEGEND_UNKNOWN  0
-
 class CardHistoryItem {
 public:
   int turn;
   Player player;
   string cardId;
+  int internalId;
 
-  CardHistoryItem( int turn, Player player, const string& cardId )
-    : turn( turn ), player( player ), cardId( cardId )
+  CardHistoryItem( int turn, Player player, const string& cardId, int internalId = 0 )
+    : turn( turn ), player( player ), cardId( cardId ), internalId( internalId )
   {
   }
 };

@@ -12,12 +12,14 @@ private:
   int mTurnCounter;
   bool mHeroPowerUsed;
   int mHeroPlayerId;
-  bool mLegendTracked;
+  bool mSpectating;
 
   ::CardHistoryList mCardHistoryList;
 
-  void CardPlayed( Player player, const string& cardId );
+  void CardPlayed( Player player, const string& cardId, int internalId = 0 );
   void CardReturned( Player player, const string& cardId );
+
+  void SecretResolved( Player player, const string& cardId, int internalId );
 
   int CurrentTurn() const;
 
@@ -28,19 +30,16 @@ private slots:
 
 signals:
   void HandleMatchStart();
-  void HandleMatchEnd( const ::CardHistoryList& cardHistoryList );
+  void HandleMatchEnd( const ::CardHistoryList& cardHistoryList, bool wasSpectating );
 
   void HandleOutcome( Outcome outcome );
   void HandleOrder( GoingOrder order );
   void HandleGameMode( GameMode mode );
   void HandleOpponentClass( Class opponentClass );
   void HandleOwnClass( Class ownClass );
-  void HandleRank( int rank );
-  void HandleLegend( int legend );
 
 public:
   HearthstoneLogTracker();
-
 
   const ::CardHistoryList& CardHistoryList() const { return mCardHistoryList; }
 };
