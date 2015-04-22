@@ -50,7 +50,7 @@ make
 On Linux, you might have to do the following if you have qt5 installed
 
 ```
-qtmake-qt4
+qmake-qt4
 make
 ```
 
