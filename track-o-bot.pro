@@ -89,12 +89,12 @@ unix {
     LIBS += -lXext -lX11 -L/usr/lib/x86_64-linux-gnu/
     CONFIG += link_pkgconfig
     PKGCONFIG += x11
-    desktop.path = $$PREFIX/share/applications
-    desktop.files += \
-        assets/track-o-bot.desktop
     isEmpty(PREFIX){
         PREFIX = /usr/local
     }
+    desktop.path = $$PREFIX/share/applications
+    desktop.files += \
+        assets/track-o-bot.desktop
     target.path = $$PREFIX/bin
     icon.path = $$PREFIX/share/icons/hicolor/256x256/apps
     icon.files += icons/Track-o-Bot.png
