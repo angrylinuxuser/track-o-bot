@@ -9,7 +9,7 @@
 #elif defined Q_WS_WIN
 #include "WinWindowCapture.h"
 #include "Shlobj.h"
-#elif defined Q_WS_X11
+#elif defined Q_WS_X11 || defined Q_OS_LINUX
 #include <math.h>
 #include "LinuxWindowCapture.h"
 #endif
@@ -23,7 +23,7 @@ Hearthstone::Hearthstone()
   mCapture = new OSXWindowCapture( "Hearthstone" );
 #elif defined Q_WS_WIN
   mCapture = new WinWindowCapture( "Hearthstone" );
-#elif defined Q_WS_X11
+#elif defined Q_WS_X11 || defined Q_OS_LINUX
  mCapture = new LinuxWindowCapture ( "Hearthstone" );
 #endif
 }
@@ -129,8 +129,12 @@ string Hearthstone::LogConfigPath() {
   SHGetSpecialFolderPathA( NULL, buffer, CSIDL_LOCAL_APPDATA, FALSE );
   QString localAppData( buffer );
   QString configPath = localAppData + "\\Blizzard\\Hearthstone\\log.config";
-#elif defined Q_WS_X11
-  QString homeLocation = QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
+#elif defined Q_WS_X11 || defined Q_OS_LINUX
+    #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+        QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
+    #else
+        QString homeLocation = QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
+    #endif
   QString configPath = homeLocation + "/.Hearthstone/log.config";
   LOG("HS config file: %s", configPath.toStdString().c_str());
 #endif
@@ -153,8 +157,12 @@ string Hearthstone::LogPath() {
     hsPath = programFiles + "\\Hearthstone";
   }
   QString logPath = hsPath + "\\Hearthstone_Data\\output_log.txt";
-#elif defined Q_WS_X11
-  QString homeLocation = QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
+#elif defined Q_WS_X11 || defined Q_OS_LINUX
+    #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+        QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
+    #else
+      QString homeLocation = QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
+    #endif
   QString logPath = homeLocation + "/.Hearthstone/output_log.txt";
 #endif
   LOG("HS log file: %s", logPath.toStdString().c_str());

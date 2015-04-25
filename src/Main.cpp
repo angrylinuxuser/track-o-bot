@@ -18,7 +18,7 @@
 #include "SparkleUpdater.h"
 #elif defined Q_WS_WIN
 #include "WinSparkleUpdater.h"
-#elif defined Q_WS_X11
+#elif defined Q_WS_X11 || defined Q_OS_LINUX
 #include "SparkleUpdater.h"
 #endif
 
@@ -42,7 +42,7 @@ int main( int argc, char **argv )
   icon.addFile( ":/icons/mac_black@2x.png" );
 #elif defined Q_WS_WIN
   QIcon icon = QIcon( ":/icons/win.ico" );
-#elif defined Q_WS_X11
+#elif defined Q_WS_X11 || defined Q_OS_LINUX
   QIcon icon = QIcon( ":/icons/Track-o-Bot.png" );
 #endif
   app.setApplicationName( "Track-o-Bot" ); // for proper DataLocation handling
@@ -68,7 +68,12 @@ int main( int argc, char **argv )
   }
 
   // Logging
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+  QString dataLocation = QStandardPaths::writableLocation( QStandardPaths::AppDataLocation );
+#else
   QString dataLocation = QDesktopServices::storageLocation( QDesktopServices::DataLocation );
+#endif
+
   if( !QFile::exists(dataLocation) ) {
     QDir dir;
     dir.mkpath( dataLocation );
@@ -85,7 +90,7 @@ int main( int argc, char **argv )
   gUpdater = new SparkleUpdater( Tracker::Instance()->WebserviceURL( "/appcast.xml" ) );
 #elif defined Q_WS_WIN
   gUpdater = new WinSparkleUpdater( Tracker::Instance()->WebserviceURL( "/appcast_win.xml" ) );
-#elif defined Q_WS_X11
+#elif defined Q_WS_X11 || defined Q_OS_LINUX
   gUpdater = NULL;
 #endif
 
