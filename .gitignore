@@ -11,4 +11,5 @@ Makefile.*
 *.exe
 *.autosave
 *.o
+*.user
 /scenes/*
