@@ -92,6 +92,13 @@ unix {
     isEmpty(PREFIX){
         PREFIX = /usr/local
     }
+    
+    greaterThan(QT_MAJOR_VERSION, 5) {
+        QT += widgets
+    } else {
+    	QT += gui
+    }
+    
     desktop.path = $$PREFIX/share/applications
     desktop.files += \
         assets/track-o-bot.desktop
