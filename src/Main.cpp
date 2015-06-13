@@ -68,8 +68,10 @@ int main( int argc, char **argv )
   }
 
   // Logging
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+#if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
   QString dataLocation = QStandardPaths::writableLocation( QStandardPaths::AppDataLocation );
+#elif QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+  QString dataLocation = QStandardPaths::writableLocation( QStandardPaths::DataLocation );
 #else
   QString dataLocation = QDesktopServices::storageLocation( QDesktopServices::DataLocation );
 #endif
