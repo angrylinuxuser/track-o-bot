@@ -161,7 +161,10 @@ void HearthstoneLogTracker::HandleLogLine( const QString& line ) {
     // So make sure we only account for the "initial" playable heroes
     Class hero = CLASS_UNKNOWN;
     for( int i = 0; i < NUM_HEROES; i++ ) {
-      if( cardId == HERO_IDS[ i ] ) {
+      // startsWith instead of exact match to support
+      // the new reasonably priced hero skins
+      // (e.g. HERO_01a instead of HERO_01)
+      if( cardId.startsWith( HERO_IDS[ i ] ) ) {
         hero = ( Class )i;
       }
     }
@@ -201,16 +204,30 @@ void HearthstoneLogTracker::HandleLogLine( const QString& line ) {
     }
   }
 
+  // Tavern Brawl
+  QRegExp regexTavernBrawl( "SAVE --> NetCacheTavernBrawlRecord" );
+  if( regexTavernBrawl.indexIn(line) != -1 ) {
+    HandleGameMode( MODE_TAVERN_BRAWL );
+  }
+
   // Casual/Ranked distinction
   QRegExp regexRanked( "name=rank_window" );
   if( regexRanked.indexIn(line) != -1 ) {
     HandleGameMode( MODE_RANKED );
   }
 
-  // Spectating games
-  QRegExp regexSpectating( "\\[Power\\].*Begin Spectating" );
-  if( regexSpectating.indexIn(line) != -1 ) {
+  // flag current GAME as spectated
+  QRegExp regexBeginSpectating( "\\[Power\\].*Start Spectator Game" );
+  if( regexBeginSpectating.indexIn(line) != -1 ) {
+    DEBUG( "Begin spectator game" );
     mSpectating = true;
+  }
+
+  // disable spectating flag if we leave the spectator MODE
+  QRegExp regexEndSpectating( "\\[Power\\].*End Spectator Mode" );
+  if( regexEndSpectating.indexIn(line) != -1 ) {
+    DEBUG( "End spectator mode" );
+    mSpectating = false;
   }
 }
 
