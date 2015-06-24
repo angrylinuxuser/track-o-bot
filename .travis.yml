@@ -1,0 +1,3 @@
+language: cpp
+script: qmake && make && make test
+ 
