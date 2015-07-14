@@ -108,6 +108,8 @@ int main( int argc, char **argv )
   // Main Loop
   int exitCode = app.exec();
 
+  Tracker::Reset();
+
   // Tear down
   LOG( "<-- Shutdown" );
 
