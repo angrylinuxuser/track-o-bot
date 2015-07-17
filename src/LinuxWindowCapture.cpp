@@ -75,7 +75,7 @@ QList<Window> LinuxWindowCapture::listXWindowsRecursive(Display *disp, Window w)
 
 int LinuxWindowCapture::FindWindow( const string& name ) {
     int winId = 0;
-    Display *disp = XOpenDisplay(":0.0");
+    Display *disp = XOpenDisplay(NULL);
     Window rootWin = XDefaultRootWindow(disp);
     QList<Window> windows = listXWindowsRecursive(disp, rootWin);
 
