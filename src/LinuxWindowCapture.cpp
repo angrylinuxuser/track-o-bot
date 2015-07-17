@@ -93,7 +93,7 @@ int LinuxWindowCapture::FindWindow( const string& name ) {
 }
 
 bool LinuxWindowCapture::WindowRect( int windowId, QRect *rect ) {
-    Display *disp = XOpenDisplay(":0.0");
+    Display *disp = XOpenDisplay(NULL);
     QList<Window> windows = listXWindowsRecursive(disp, windowId);
 
     int numWindows = windows.length();
