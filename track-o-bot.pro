@@ -1,5 +1,5 @@
 TARGET = Track-o-Bot
-VERSION = 0.4.7
+VERSION = 0.5.0
 
 CONFIG += qt precompile_header debug_and_release
 QT += network
@@ -18,7 +18,9 @@ HEADERS = src/Local.h \
           src/Tracker.h \
           src/HearthstoneLogWatcher.h \
           src/HearthstoneLogTracker.h \
-          src/Hearthstone.h
+          src/NeuralNetwork.h \
+          src/RankClassifierData.h \
+          src/RankClassifier.h
 
 SOURCES = src/Main.cpp \
           src/Hearthstone.cpp \
@@ -29,7 +31,9 @@ SOURCES = src/Main.cpp \
           src/Json.cpp \
           src/Autostart.cpp \
           src/HearthstoneLogWatcher.cpp \
-          src/HearthstoneLogTracker.cpp
+          src/HearthstoneLogTracker.cpp \
+          src/NeuralNetwork.cpp \ 
+          src/RankClassifier.cpp
 
 FORMS   = src/Window.ui \
           src/SettingsWidget.ui \

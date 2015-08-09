@@ -26,7 +26,7 @@ const char HERO_IDS[NUM_HEROES][32] = {
 Q_DECLARE_METATYPE( ::CardHistoryList );
 
 HearthstoneLogTracker::HearthstoneLogTracker()
-  : mTurnCounter( 0 ), mHeroPowerUsed( false ), mHeroPlayerId( 0 )
+  : mTurnCounter( 0 ), mHeroPowerUsed( false ), mHeroPlayerId( 0 ), mLegendTracked( false )
 {
   qRegisterMetaType< ::CardHistoryList >( "CardHistoryList" );
 
@@ -38,6 +38,7 @@ void HearthstoneLogTracker::Reset() {
   mTurnCounter = 0;
   mHeroPowerUsed = false;
   mCardHistoryList.clear();
+  mLegendTracked = false;
   mSpectating = false;
 }
 
@@ -110,10 +111,16 @@ void HearthstoneLogTracker::HandleLogLine( const QString& line ) {
   // Turn Info
   QRegExp regexTurn( "change=powerTask.*tag=NEXT_STEP value=MAIN_ACTION" );
   if( regexTurn.indexIn(line) != -1 ) {
+    int oldTurn = CurrentTurn();
+
     mTurnCounter++;
 
     // reset hero power usage on turn change
     mHeroPowerUsed = false;
+
+    if( oldTurn != CurrentTurn() ) {
+      emit HandleTurn( CurrentTurn() );
+    }
   }
 
   // Hero Power
@@ -208,6 +215,21 @@ void HearthstoneLogTracker::HandleLogLine( const QString& line ) {
   QRegExp regexTavernBrawl( "SAVE --> NetCacheTavernBrawlRecord" );
   if( regexTavernBrawl.indexIn(line) != -1 ) {
     HandleGameMode( MODE_TAVERN_BRAWL );
+  }
+
+  // Rank
+  // Rank events via log are unreliable
+
+  // Legend
+  // Emitted at the end of the game twice, make sure we capture only the first time
+  QRegExp regexLegend( "legend rank (\\d+)" );
+  if( !mLegendTracked && regexLegend.indexIn(line) != -1 ) {
+    QStringList captures = regexLegend.capturedTexts();
+    int legend = captures[1].toInt();
+    if( legend > 0 ) {
+      mLegendTracked = true;
+      HandleLegend( legend );
+    }
   }
 
   // Casual/Ranked distinction
