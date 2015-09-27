@@ -3,7 +3,7 @@
 // remove the window title bar which we are not interested in
 #define LINUX_WINDOW_TITLE_BAR_HEIGHT 22
 
-LinuxWindowCapture::LinuxWindowCapture( const string& windowName )
+LinuxWindowCapture::LinuxWindowCapture( const QString& windowName )
   : mWindowName( windowName ), mWinId( 0 )
 {
   mTimer = new QTimer( this );
@@ -73,7 +73,7 @@ QList<Window> LinuxWindowCapture::listXWindowsRecursive(Display *disp, Window w)
     return windows;
 }
 
-int LinuxWindowCapture::FindWindow( const string& name ) {
+int LinuxWindowCapture::FindWindow( const QString& name ) {
     int winId = 0;
     Display *disp = XOpenDisplay(NULL);
     Window rootWin = XDefaultRootWindow(disp);
@@ -82,9 +82,8 @@ int LinuxWindowCapture::FindWindow( const string& name ) {
     foreach(Window win, windows){
         char *n;
         XFetchName(disp, win, &n);
-        QString needle = QString::fromStdString(name);
         QString found = QString::fromLocal8Bit(n);
-        if(found == needle){
+        if(found == name){
             winId = win;
         }
     }

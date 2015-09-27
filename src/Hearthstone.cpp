@@ -46,6 +46,13 @@ QString Hearthstone::ReadAgentAttribute( const char *attributeName ) const {
   SHGetSpecialFolderPathW( NULL, buffer, CSIDL_COMMON_APPDATA, FALSE );
   QString programData = QString::fromWCharArray( buffer );
   QString path = programData + "\\Battle.net\\Agent\\agent.db";
+#elif defined Q_WS_X11 || defined Q_OS_LINUX
+    #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+        QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
+    #else
+        QString homeLocation = QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
+    #endif
+  QString path = homeLocation + "/.Hearthstone/agent.db";
 #endif
 
   QFile file( path );
