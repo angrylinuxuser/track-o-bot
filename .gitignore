@@ -13,3 +13,5 @@ Makefile.*
 *.o
 *.user
 /scenes/*
+/debug/
+/release/
