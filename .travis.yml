@@ -2,7 +2,7 @@ before_install:
  - sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
  - sudo apt-add-repository -y ppa:beineri/opt-qt55
  - sudo apt-get update -qq
- - sudo apt-get install qt55base qt55tools qt55svg qt55webkit
+ - sudo apt-get install qt55base qt55tools qt55svg qt55webkit qt55script
 language: cpp
 script:
  - /opt/qt55/bin/qt55-env.sh 
