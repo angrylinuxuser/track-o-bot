@@ -93,6 +93,9 @@ void Window::TrayIconActivated( QSystemTrayIcon::ActivationReason reason ) {
 if( reason == QSystemTrayIcon::DoubleClick ) {
     OpenProfileRequested();
 }
+else if( reason == QSystemTrayIcon::Trigger ) {
+    RiseAndShine();
+}
 #else
   UNUSED_ARG( reason );
 #endif
