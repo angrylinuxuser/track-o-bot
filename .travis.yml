@@ -5,6 +5,5 @@ before_install:
  - sudo apt-get install qt55base qt55tools qt55svg qt55webkit qt55script
 language: cpp
 script:
- - /opt/qt55/bin/qt55-env.sh 
- - qmake && make && make test
+ - /opt/qt55/bin/qmake && make && make test
  
