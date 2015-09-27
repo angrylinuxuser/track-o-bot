@@ -2,7 +2,7 @@ before_install:
  - sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
  - sudo apt-add-repository -y ppa:beineri/opt-qt541
  - sudo apt-get update -qq
- - sudo apt-get install qt54tools qt54svg qt54webkit
+ - sudo apt-get install qt54base qt54tools qt54svg qt54webkit
 language: cpp
 script: qmake && make && make test
  
