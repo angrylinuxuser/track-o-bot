@@ -150,7 +150,7 @@ void Window::CreateTrayIcon() {
   QIcon icon = QIcon( ":/icons/win.ico" );
 #elif defined Q_WS_X11 || defined Q_OS_LINUX  
   QIcon icon = QIcon( ":/icons/Track-o-Bot.png" );
-  icon.addFile( ":/icons/logo.png", QSize(), QIcon::Active );
+  icon.addFile( ":/icons/logo.png", QSize() );
 #endif
 
   mTrayIcon->setIcon( icon );
