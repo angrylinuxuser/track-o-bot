@@ -111,12 +111,8 @@ void Autostart::SetActive( bool active )
 
   CFRelease( currentLoginItems );
   CFRelease( loginItems );
-#elif defined Q_WS_X11 || defined Q_OS_LINUX
-    #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-        QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
-    #else
-        QString homeLocation = QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
-    #endif
+#elif defined Q_OS_LINUX
+    QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
     QDir* autostartPath = new QDir(homeLocation + "/.config/autostart/");
     if( !active ) {
         QFile* desktopFile = new QFile(autostartPath->filePath("track-o-bot.desktop"));

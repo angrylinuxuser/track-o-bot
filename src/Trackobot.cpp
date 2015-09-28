@@ -14,7 +14,7 @@
 #include "SparkleUpdater.h"
 #elif defined Q_OS_WIN
 #include "WinSparkleUpdater.h"
-#elif defined Q_WS_X11 || defined Q_OS_LINUX
+#elif defined defined Q_OS_LINUX
 #include "SparkleUpdater.h"
 #endif
 
@@ -100,7 +100,7 @@ void Trackobot::SetupApplication() {
   icon.addFile( ":/icons/mac_black@2x.png" );
 #elif defined Q_OS_WIN
   QIcon icon( ":/icons/win.ico" );
-#elif defined Q_WS_X11 || defined Q_OS_LINUX
+#elif defined Q_OS_LINUX
   QIcon icon = QIcon( ":/icons/Track-o-Bot.png" );
 #endif
   mApp.setApplicationName( "Track-o-Bot" ); // for proper DataLocation handling
@@ -126,7 +126,7 @@ void Trackobot::SetupUpdater() {
 gUpdater = new SparkleUpdater( mWebProfile.WebserviceURL( "/appcast.xml" ) );
 #elif defined Q_OS_WIN
 gUpdater = new WinSparkleUpdater( mWebProfile.WebserviceURL( "/appcast_win.xml" ) );
-#elif defined Q_WS_X11 || defined Q_OS_LINUX
+#elif defined Q_OS_LINUX
   gUpdater = NULL;
 #endif
 }

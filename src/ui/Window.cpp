@@ -64,7 +64,7 @@ void Window::TabChanged( int index ) {
 }
 
 void Window::ShowNotification( const char *title, const char *message ) {
-#if defined Q_OS_WIN || defined Q_WS_X11 || defined Q_OS_LINUX
+#if defined Q_OS_WIN || defined Q_OS_LINUX
   mTrayIcon->showMessage( title, message );
 #elif defined Q_OS_MAC
   OSX_ShowNotification( title, message );
@@ -76,7 +76,7 @@ void Window::HandleFirstStartCheck() {
   QSettings settings;
   if( !settings.contains("taskbarHint") ) {
     settings.setValue( "taskbarHint", true );
-#if defined Q_OS_WIN || defined Q_WS_X11 || defined Q_OS_LINUX
+#if defined Q_OS_WIN || defined Q_OS_LINUX
     ShowNotification( "Heads up!", "Track-o-Bot runs in your taskbar! Right click the icon for more options." );
 #elif defined Q_OS_MAC
     ShowNotification( "Track-o-Bot", "Track-o-Bot runs in your menu bar! Click the icon for more options." );
@@ -89,7 +89,7 @@ void Window::TrayIconActivated( QSystemTrayIcon::ActivationReason reason ) {
   if( reason == QSystemTrayIcon::ActivationReason::DoubleClick ) {
     OpenProfileRequested();
   }
-#elif defined Q_WS_X11 || defined Q_OS_LINUX  
+#elif defined Q_OS_LINUX
 if( reason == QSystemTrayIcon::DoubleClick ) {
     OpenProfileRequested();
 }
@@ -127,8 +127,10 @@ void Window::CreateTrayIcon() {
   mTrayIconMenu->addAction( mOpenProfileAction );
   mTrayIconMenu->addSeparator();
   mTrayIconMenu->addAction( mShowAction );
+#if defined Q_OS_WIN || defined Q_OS_MAC
   mTrayIconMenu->addSeparator();
   mTrayIconMenu->addAction( mQuitAction );
+#endif
 
   mTrayIcon = new QSystemTrayIcon( this );
   mTrayIcon->setContextMenu (mTrayIconMenu );
@@ -148,7 +150,7 @@ void Window::CreateTrayIcon() {
   icon.addFile( ":/icons/mac_white@2x.png", QSize(), whiteMode );
 #elif defined Q_OS_WIN
   QIcon icon = QIcon( ":/icons/win.ico" );
-#elif defined Q_WS_X11 || defined Q_OS_LINUX  
+#elif defined Q_OS_LINUX
   QIcon icon = QIcon( ":/icons/Track-o-Bot.png" );
   icon.addFile( ":/icons/logo.png", QSize() );
 #endif

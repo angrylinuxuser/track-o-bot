@@ -46,7 +46,7 @@ QString Hearthstone::ReadAgentAttribute( const char *attributeName ) const {
   SHGetSpecialFolderPathW( NULL, buffer, CSIDL_COMMON_APPDATA, FALSE );
   QString programData = QString::fromWCharArray( buffer );
   QString path = programData + "\\Battle.net\\Agent\\agent.db";
-#elif defined Q_WS_X11 || defined Q_OS_LINUX
+#elif defined Q_OS_LINUX
     #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
         QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
     #else
@@ -188,12 +188,8 @@ QString Hearthstone::LogConfigPath() const {
   SHGetSpecialFolderPathW( NULL, buffer, CSIDL_LOCAL_APPDATA, FALSE );
   QString localAppData = QString::fromWCharArray( buffer );
   QString configPath = localAppData + "/Blizzard/Hearthstone/log.config";
-#elif defined Q_WS_X11 || defined Q_OS_LINUX
-    #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-        QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
-    #else
-        QString homeLocation = QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
-    #endif
+#elif defined Q_OS_LINUX
+  QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
   QString configPath = homeLocation + "/.Hearthstone/log.config";
   LOG("HS config file: %s", configPath.toStdString().c_str());
 #endif
@@ -210,14 +206,10 @@ QString Hearthstone::LogPath( const QString& fileName ) const {
     QSettings hsKey( "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Hearthstone", QSettings::NativeFormat );
     hsPath = hsKey.value( "InstallLocation" ).toString();
   }
-#elif defined Q_WS_X11 || defined Q_OS_LINUX
-    #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-        QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
-    #else
-      QString homeLocation = QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
-    #endif
-  hsPath = homeLocation + "/.Hearthstone";
-  return QString( "%1/%2" ).arg( hsPath ).arg( fileName );
+#elif defined Q_OS_LINUX
+    QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
+    hsPath = homeLocation + "/.Hearthstone";
+    return QString( "%1/%2" ).arg( hsPath ).arg( fileName );
 #endif
 
   if( hsPath.isEmpty() ) {

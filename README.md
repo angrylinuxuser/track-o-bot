@@ -26,7 +26,7 @@ brew link qt5 --force
 
 * Install Qt5.5+ with your distribution package manager (apt, etc...)
 * Create folder .Hearthstone in your home directory
-* Create symlinks of the Hearthstone's output_log and log.config in the newly created folder
+* Create symlinks of the Hearthstone's output_log ("WINEPREFIX/drive_c/Program Files/Hearthstone/Hearthstone_Data/") and log.config ("WINEPREFIX/drive_c/users/WINEUSER/Local Settings/Application Data/Blizzard/Hearthstone/", create file if not exists) in the newly created folder
 
 # Build Instructions
 
