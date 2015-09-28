@@ -24,7 +24,7 @@ brew link qt5 --force
 
 ## GNU/Linux
 
-* Install Qt4.8 or Qt5.0+ with your distribution package manager (apt, etc...)
+* Install Qt5.5+ with your distribution package manager (apt, etc...)
 * Create folder .Hearthstone in your home directory
 * Create symlinks of the Hearthstone's output_log and log.config in the newly created folder
 
@@ -32,13 +32,6 @@ brew link qt5 --force
 
 ```
 qmake
-make
-```
-
-Alternativelly you can use qt4 to build the application:
-
-```
-qmake-qt4
 make
 ```
 
@@ -50,7 +43,7 @@ The resulting binary can be found in the ``build`` subfolder.
 sudo make install
 ```
 
-Default install prefix is /usr/local. You can change it by adding PREFIX argument to qmake-qt4 command eg:
+Default install prefix is /usr/local. You can change it by adding PREFIX argument to qmake command eg:
 
 ```
 qmake PREFIX=/usr
