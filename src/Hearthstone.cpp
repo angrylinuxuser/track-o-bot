@@ -47,11 +47,7 @@ QString Hearthstone::ReadAgentAttribute( const char *attributeName ) const {
   QString programData = QString::fromWCharArray( buffer );
   QString path = programData + "\\Battle.net\\Agent\\agent.db";
 #elif defined Q_OS_LINUX
-    #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-        QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
-    #else
-        QString homeLocation = QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
-    #endif
+  QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
   QString path = homeLocation + "/.Hearthstone/agent.db";
 #endif
 
@@ -236,13 +232,6 @@ QString Hearthstone::WindowName() const {
   } else if( locale == "koKR") {
     windowName = QString::fromWCharArray( L"하스스톤" );
   }
-
-  QFile file("C:\\tmp\\out.txt");
-  file.open(QIODevice::Text | QIODevice::WriteOnly );
-
-  QTextStream out(&file);
-  out << windowName << "\n";
-  file.close();
 
   return windowName;
 }

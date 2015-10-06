@@ -123,14 +123,23 @@ void Window::CreateActions() {
 }
 
 void Window::CreateTrayIcon() {
+  bool is_linux = true;
+#if defined Q_OS_WIN || defined Q_OS_MAC
+  is_linux = false;
+#endif
   mTrayIconMenu = new QMenu( this);
   mTrayIconMenu->addAction( mOpenProfileAction );
   mTrayIconMenu->addSeparator();
   mTrayIconMenu->addAction( mShowAction );
-#if defined Q_OS_WIN || defined Q_OS_MAC
-  mTrayIconMenu->addSeparator();
-  mTrayIconMenu->addAction( mQuitAction );
-#endif
+  bool is_kde_plasma = false;
+  if(is_linux){
+      QString dm = getenv("DESKTOP_SESSION");
+      is_kde_plasma = (dm.toLower() == "plasma");
+  }
+  if(!is_linux && !is_kde_plasma){
+    mTrayIconMenu->addSeparator();
+    mTrayIconMenu->addAction( mQuitAction );
+  }
 
   mTrayIcon = new QSystemTrayIcon( this );
   mTrayIcon->setContextMenu (mTrayIconMenu );
