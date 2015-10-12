@@ -14,7 +14,7 @@
 #elif defined Q_OS_WIN
 #include "WinWindowCapture.h"
 #include "Shlobj.h"
-#elif defined Q_WS_X11 || defined Q_OS_LINUX
+#elif defined Q_OS_LINUX
 #include <math.h>
 #include "LinuxWindowCapture.h"
 #endif
@@ -25,10 +25,13 @@ Hearthstone::Hearthstone()
  : mRestartRequired( false )
 {
 #ifdef Q_OS_MAC
+    LOG("OS X host");
   mCapture = new OSXWindowCapture( WindowName() );
 #elif defined Q_OS_WIN
+    LOG("Windows host");
   mCapture = new WinWindowCapture( WindowName() );
 #elif defined Q_OS_LINUX
+ LOG("GNU/Linux host");
  mCapture = new LinuxWindowCapture ( WindowName() );
 #endif
 }
@@ -39,6 +42,7 @@ Hearthstone::~Hearthstone() {
 }
 
 QString Hearthstone::ReadAgentAttribute( const char *attributeName ) const {
+    LOG("HS ReadAgentAttribute: %s", attributeName);
 #ifdef Q_OS_MAC
   QString path = "/Users/Shared/Battle.net/Agent/agent.db";
 #elif defined Q_OS_WIN
@@ -49,6 +53,12 @@ QString Hearthstone::ReadAgentAttribute( const char *attributeName ) const {
 #elif defined Q_OS_LINUX
   QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
   QString path = homeLocation + "/.Hearthstone/agent.db";
+  if(QFile(path).exists()){
+    LOG("HS Agent DB file (agent.db): FOUND");
+  }
+  else{
+      LOG("HS Agent DB file (agent.db): NOT FOUND");
+  }
 #endif
 
   QFile file( path );
@@ -187,14 +197,30 @@ QString Hearthstone::LogConfigPath() const {
 #elif defined Q_OS_LINUX
   QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
   QString configPath = homeLocation + "/.Hearthstone/log.config";
-  LOG("HS config file: %s", configPath.toStdString().c_str());
 #endif
+  if(QFile(configPath).exists()){
+      LOG("HS config file (log.config): FOUND");
+  }
+  else{
+      LOG("HS config file (log.config): NOT FOUND");
+  }
   return configPath;
 }
 
 QString Hearthstone::LogPath( const QString& fileName ) const {
-  QString hsPath = ReadAgentAttribute( "install_dir" );
+#ifdef Q_OS_LINUX
+    QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
+    QString hsPathLnx = homeLocation + "/.Hearthstone";
+    if( hsPathLnx.isEmpty() ) {
+      ERR( "Hearthstone path not found" );
+      return QString();
+   }
 
+    LOG("HS path: %s/Logs/%s", hsPathLnx.toStdString().c_str(), fileName.toStdString().c_str());
+    return QString( "%1/Logs/%2" ).arg( hsPathLnx ).arg( fileName );
+#endif
+
+  QString hsPath = ReadAgentAttribute( "install_dir" );
 #ifdef Q_OS_WIN
   if( hsPath.isEmpty() ) {
     LOG( "Registry fallback for path" );
@@ -202,10 +228,6 @@ QString Hearthstone::LogPath( const QString& fileName ) const {
     QSettings hsKey( "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Hearthstone", QSettings::NativeFormat );
     hsPath = hsKey.value( "InstallLocation" ).toString();
   }
-#elif defined Q_OS_LINUX
-    QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
-    hsPath = homeLocation + "/.Hearthstone";
-    return QString( "%1/%2" ).arg( hsPath ).arg( fileName );
 #endif
 
   if( hsPath.isEmpty() ) {
@@ -213,6 +235,7 @@ QString Hearthstone::LogPath( const QString& fileName ) const {
     return QString();
  }
 
+  LOG("HS path: %s/s", hsPath.toStdString().c_str(), fileName.toStdString().c_str());
   return QString( "%1/Logs/%2" ).arg( hsPath ).arg( fileName );
 }
 

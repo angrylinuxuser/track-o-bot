@@ -38,7 +38,7 @@ int LinuxWindowCapture::Height() {
 }
 
 QPixmap LinuxWindowCapture::Capture( int x, int y, int w, int h ) {
-    //LOG("Capturing window: %d, %d, %d, %d", x,y,h,w);
+    LOG("Capturing window: %d, %d, %d, %d", x,y,h,w);
     QPixmap pixmap = QPixmap::grabWindow(mWinId,
                                          x + mRect.x(),
                                          y + mRect.y() + ( Fullscreen() ? 0 : LINUX_WINDOW_TITLE_BAR_HEIGHT ),
@@ -85,6 +85,8 @@ int LinuxWindowCapture::FindWindow( const QString& name ) {
         QString found = QString::fromLocal8Bit(n);
         if(found == name){
             winId = win;
+            //LOG("HS Window found");
+            break;
         }
     }
     XCloseDisplay(disp);

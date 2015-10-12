@@ -14,8 +14,8 @@
 #include "SparkleUpdater.h"
 #elif defined Q_OS_WIN
 #include "WinSparkleUpdater.h"
-#elif defined defined Q_OS_LINUX
-#include "SparkleUpdater.h"
+#elif defined Q_OS_LINUX
+//TODO: update notifier
 #endif
 
 #include "Hearthstone.h"
@@ -31,7 +31,6 @@ Trackobot::Trackobot( int argc, char **argv )
     mWindow( NULL ),
     mSingleInstanceServer( NULL )
 {
-  SetupApplication();
   }
 
 Trackobot::~Trackobot() {
@@ -80,7 +79,7 @@ bool Trackobot::IsAlreadyRunning() {
 
   QLocalSocket socket;
   socket.connectToServer( serverName );
-  if( socket.waitForConnected(500) ) {
+  if( socket.waitForConnected( 500 ) ) {
     return true;
   }
 
@@ -122,7 +121,7 @@ void Trackobot::SetupLogging() {
 
 void Trackobot::SetupUpdater() {
 #if defined Q_OS_MAC
-  CocoaInitializer cocoaInitializer;
+CocoaInitializer cocoaInitializer;
 gUpdater = new SparkleUpdater( mWebProfile.WebserviceURL( "/appcast.xml" ) );
 #elif defined Q_OS_WIN
 gUpdater = new WinSparkleUpdater( mWebProfile.WebserviceURL( "/appcast_win.xml" ) );
