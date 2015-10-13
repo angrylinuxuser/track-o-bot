@@ -148,7 +148,7 @@ void Window::CreateTrayIcon() {
       QString dm = getenv("DESKTOP_SESSION");
       is_kde_plasma = (dm.toLower() == "plasma");
   }
-  if(!is_linux && !is_kde_plasma){
+  if(!is_linux || !is_kde_plasma){
     mTrayIconMenu->addSeparator();
     mTrayIconMenu->addAction( mQuitAction );
   }
