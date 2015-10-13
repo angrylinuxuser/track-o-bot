@@ -28,9 +28,11 @@ brew link qt5 --force
 * Create folder .Hearthstone in your home directory
 * CTrack-o-Bot now relies on Power.log, Zone.log, Asset.log and Bod.log so you have to create symlinks of the Hearthstone's logs folder ("WINEPREFIX/drive_c/Program Files/Hearthstone/Logs") and log.config ("WINEPREFIX/drive_c/users/WINEUSER/Local Settings/Application Data/Blizzard/Hearthstone/", create file if not exists) in the newly created folder eg:
 
-> ln -s $WINEPREFIX/drive_c/Program\ Files/Hearthstone/Logs ~/.Hearthstone/Logs
+```
+ln -s $WINEPREFIX/drive_c/Program\ Files/Hearthstone/Logs ~/.Hearthstone/Logs
 
-> ln -s $WINEPREFIX/drive_c/users/WINEUSER/Local\ Settings/Application\ Data/Blizzard/Hearthstone/log.config  ~/.Hearthstone/log.config
+ln -s $WINEPREFIX/drive_c/users/WINEUSER/Local\ Settings/Application\ Data/Blizzard/Hearthstone/log.config  ~/.Hearthstone/log.config
+```
 
 # Build Instructions
 
