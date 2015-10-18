@@ -29,9 +29,9 @@ Trackobot::Trackobot( int argc, char **argv )
   : mApp( argc, argv ),
     mCore( NULL ),
     mWindow( NULL ),
-    mSingleInstanceServer( NULL )
-{
-  }
+    mSingleInstanceServer( NULL ){
+    SetupApplication();
+}
 
 Trackobot::~Trackobot() {
   if( mWindow ) {
