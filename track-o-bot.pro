@@ -58,7 +58,8 @@ FORMS   = src/ui/MainWindow.ui \
 
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
-RESOURCES += resources.qrc
+RESOURCES += resources.qrc \
+    linux.qrc
 
 CONFIG(debug, debug|release): DEFINES += _DEBUG
 
