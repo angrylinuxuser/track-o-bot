@@ -60,6 +60,7 @@ DEFINES += VERSION=\\\"$$VERSION\\\"
 
 RESOURCES += resources.qrc
 
+
 CONFIG(debug, debug|release): DEFINES += _DEBUG
 
 mac {
@@ -113,6 +114,7 @@ unix {
     DEFINES += PLATFORM=\\\"linux\\\"
     HEADERS += src/LinuxWindowCapture.h
     SOURCES += src/LinuxWindowCapture.cpp
+    RESOURCES += linux.qrc
     LIBS += -lXext -lX11 -L/usr/lib/x86_64-linux-gnu/
     CONFIG += link_pkgconfig
     PKGCONFIG += x11
