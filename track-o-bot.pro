@@ -116,7 +116,7 @@ unix {
     SOURCES += src/LinuxWindowCapture.cpp
     RESOURCES = linux.qrc
     LIBS += -lXext -lX11 -L/usr/lib/x86_64-linux-gnu/
-    CONFIG += link_pkgconfig
+    CONFIG += link_pkgconfig debug
     PKGCONFIG += x11
     isEmpty(PREFIX){
         PREFIX = /usr/local
