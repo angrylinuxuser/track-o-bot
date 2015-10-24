@@ -135,15 +135,15 @@ void Window::CreateActions() {
 }
 
 void Window::CreateTrayIcon() {
-  bool is_linux = true;
+  /*bool is_linux = true;
 #if defined Q_OS_WIN || defined Q_OS_MAC
   is_linux = false;
-#endif
+#endif*/
   mTrayIconMenu = new QMenu( this);
   mTrayIconMenu->addAction( mOpenProfileAction );
   mTrayIconMenu->addSeparator();
   mTrayIconMenu->addAction( mShowAction );
-  bool is_kde_plasma = false;
+  /*bool is_kde_plasma = false;
   if(is_linux){
       QString dm = getenv("DESKTOP_SESSION");
       // getenv returns something like /usr/share/xsessions/plasma
@@ -152,10 +152,10 @@ void Window::CreateTrayIcon() {
       QRegularExpressionMatch plasma_match = plasma_re.match(dm);
       is_kde_plasma = plasma_match.hasMatch();
   }
-  if(!is_linux || !is_kde_plasma){
+  if(!is_linux || !is_kde_plasma){*/
     mTrayIconMenu->addSeparator();
     mTrayIconMenu->addAction( mQuitAction );
-  }
+  //}
 
   mTrayIcon = new QSystemTrayIcon( this );
   mTrayIcon->setContextMenu (mTrayIconMenu );
