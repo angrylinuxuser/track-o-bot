@@ -146,7 +146,11 @@ void Window::CreateTrayIcon() {
   bool is_kde_plasma = false;
   if(is_linux){
       QString dm = getenv("DESKTOP_SESSION");
-      is_kde_plasma = (dm.toLower() == "plasma");
+      // getenv returns something like /usr/share/xsessions/plasma
+      // so either we match that or we regexp for plasma
+      QRegularExpression plasma_re("plasma$");
+      QRegularExpressionMatch plasma_match = plasma_re.match(dm);
+      is_kde_plasma = plasma_match.hasMatch();
   }
   if(!is_linux || !is_kde_plasma){
     mTrayIconMenu->addSeparator();
