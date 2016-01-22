@@ -5,17 +5,15 @@
 
 ResultQueue::ResultQueue()
 {
-  connect( &mWebProfile, SIGNAL( UploadResultFailed(const QJsonObject&, int) ),
-      this, SLOT( UploadResultFailed(const QJsonObject&, int) ) );
-  connect( &mWebProfile, SIGNAL( UploadResultSucceeded(const QJsonObject&) ),
-      this, SLOT( UploadResultSucceeded(const QJsonObject&) ) );
+  connect( &mWebProfile, &WebProfile::UploadResultFailed, this, &ResultQueue::UploadResultFailed );
+  connect( &mWebProfile, &WebProfile::UploadResultSucceeded, this, &ResultQueue::UploadResultSucceeded );
 
   mCheckTimer = new QTimer( this );
-  connect( mCheckTimer, SIGNAL( timeout() ), this, SLOT( Check() ) );
+  connect( mCheckTimer, &QTimer::timeout, this, &ResultQueue::Check );
   mCheckTimer->start( RESULT_QUEUE_CHECK_PERIOD );
 
   mUploadTimer = new QTimer( this );
-  connect( mUploadTimer, SIGNAL( timeout() ), this, SLOT( Upload() ) );
+  connect( mUploadTimer, &QTimer::timeout, this, &ResultQueue::Upload );
 
   Load();
 }
@@ -30,7 +28,9 @@ void ResultQueue::Load() {
     QJsonDocument doc = QJsonDocument::fromJson(
         settings.value( "resultsQueue" ).toByteArray() );
     mQueue = doc.array();
-    LOG( "%d unsaved results found", mQueue.size() );
+    if( mQueue.size() > 0 ) {
+      LOG( "%d unsaved results found", mQueue.size() );
+    }
 
     settings.remove( "resultsQueue" );
   }
@@ -54,29 +54,45 @@ void ResultQueue::Add( const Result& res ) {
 
   if( res.outcome == OUTCOME_UNKNOWN ) {
     LOG( "Outcome unknown. Skip result" );
+    METADATA( "PREVIOUS_RESULT_INVALID", "OUTCOME" );
     return;
   }
 
   if( res.mode == MODE_UNKNOWN ) {
     LOG( "Mode unknown. Skip result" );
+    METADATA( "PREVIOUS_RESULT_INVALID", "MODE" );
     return;
   }
 
   if( res.order == ORDER_UNKNOWN ) {
     LOG( "Order unknown. Skip result" );
+    METADATA( "PREVIOUS_RESULT_INVALID", "ORDER" );
     return;
   }
 
   if( res.hero == CLASS_UNKNOWN ) {
     LOG( "Own Class unknown. Skip result" );
+    METADATA( "PREVIOUS_RESULT_INVALID", "OWN_CLASS" );
     return;
   }
 
   if( res.opponent == CLASS_UNKNOWN ) {
     LOG( "Class of Opponent unknown. Skip result" );
+    METADATA( "PREVIOUS_RESULT_INVALID", "OPPONENT_CLASS" );
     return;
   }
 
+  // Clear some metadata if mode not ranked
+  for( auto it : Metadata::Instance()->Map().toStdMap() ) {
+    const QString& key = it.first;
+
+    // Skip rank classification metadata for nonranked games
+    if( key.startsWith( "RANK_CLASSIFIER" ) && res.mode != MODE_RANKED ) {
+      Metadata::Instance()->Remove( key );
+    }
+  }
+
+  // Finally upload the result
   LOG( "Result: %s %s vs. %s as %s. Went %s",
       MODE_NAMES[ res.mode ],
       OUTCOME_NAMES[ res.outcome ],

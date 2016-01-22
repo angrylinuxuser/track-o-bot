@@ -27,7 +27,6 @@ Updater *gUpdater = NULL;
 
 Trackobot::Trackobot( int argc, char **argv )
   : mApp( argc, argv ),
-    mCore( NULL ),
     mWindow( NULL ),
     mSingleInstanceServer( NULL ){
     SetupApplication();
@@ -37,11 +36,6 @@ Trackobot::~Trackobot() {
   if( mWindow ) {
     delete mWindow;
     mWindow = NULL;
-  }
-
-  if( mCore ) {
-    delete mCore;
-    mCore = NULL;
   }
 
   if( mSingleInstanceServer ) {
@@ -54,21 +48,20 @@ int Trackobot::Run() {
   if( IsAlreadyRunning() )
     return 1;
 
-  SetupLogging();
-
-  LOG( "--> Launched v%s on %s", VERSION, qt2cstr( QDate::currentDate().toString( Qt::ISODate ) ) );
+  LOG( "Launch v%s on %s", VERSION, qt2cstr( QDate::currentDate().toString( Qt::ISODate ) ) );
 
   SetupUpdater();
 
-  CreateCore();
   CreateUI();
 
   Initialize();
 
+  SetupLogging();
+
   int exitCode = mApp.exec();
 
   // Tear down
-  LOG( "<-- Shutdown" );
+  LOG( "Shutdown" );
 
   return exitCode;
 }
@@ -117,6 +110,7 @@ void Trackobot::SetupLogging() {
   }
   QString logFilePath = dataLocation + QDir::separator() + mApp.applicationName() + ".log";
   Logger::Instance()->SetLogPath( logFilePath );
+  Logger::Instance()->StartProcessing();
 }
 
 void Trackobot::SetupUpdater() {
@@ -130,28 +124,15 @@ gUpdater = new WinSparkleUpdater( mWebProfile.WebserviceURL( "/appcast_win.xml" 
 #endif
 }
 
-void Trackobot::CreateCore() {
-  // Lo' and behold... it is...
-  // the insurmountable...
-  // the invincible...
-  // the magnificent...
-  // COREEEEEEE
-  mCore = new Core();
-}
-
 void Trackobot::CreateUI() {
   mWindow = new Window();
 }
 
 void Trackobot::Initialize() {
-  assert( mCore && mWindow );
+  assert( mWindow );
 
   // Wire stuff
-  connect( mCore, SIGNAL( HandleGameClientRestartRequired(bool) ),
-      mWindow, SLOT( HandleGameClientRestartRequired(bool) ) );
-
-  connect( mWindow, SIGNAL( OpenProfile() ),
-      &mWebProfile, SLOT( OpenProfile() ) );
+  connect( mWindow, &Window::OpenProfile, &mWebProfile, &WebProfile::OpenProfile );
 
   // Make sure Account exists or create one
   mWebProfile.EnsureAccountIsSetUp();

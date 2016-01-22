@@ -7,7 +7,10 @@ SettingsTab::SettingsTab( QWidget *parent )
   : QWidget( parent ), mUI( new Ui::SettingsWidget )
 {
   mUI->setupUi( this );
-  connect( mUI->startAtLogin, SIGNAL( clicked(bool) ), this, SLOT( UpdateAutostart() ) );
+  connect( mUI->checkForUpdatesNowButton, &QAbstractButton::clicked, this, &SettingsTab::CheckForUpdatesNow );
+  connect( mUI->startAtLogin, &QAbstractButton::clicked, this, &SettingsTab::UpdateAutostart );
+  connect( mUI->checkForUpdates, &QAbstractButton::clicked, this, &SettingsTab::UpdateAutoUpdateCheck );
+  connect( mUI->checkUploadMetadata, &QAbstractButton::clicked, this, &SettingsTab::UpdateUploadMetadata );
 #if defined Q_OS_LINUX
   mUI->checkForUpdatesNowButton->hide();
   mUI->checkForUpdates->setDisabled(true);
@@ -34,9 +37,14 @@ void SettingsTab::UpdateAutoUpdateCheck() {
   Settings::Instance()->SetAutoUpdateCheck( mUI->checkForUpdates->isChecked() );
 }
 
+void SettingsTab::UpdateUploadMetadata() {
+  Settings::Instance()->SetUploadMetadataEnabled( mUI->checkUploadMetadata->isChecked() );
+}
+
 void SettingsTab::LoadSettings() {
   Settings *settings = Settings::Instance();
 
   mUI->startAtLogin->setChecked( settings->Autostart() );
   mUI->checkForUpdates->setChecked( settings->AutoUpdateCheck() );
+  mUI->checkUploadMetadata->setChecked( settings->UploadMetadataEnabled() );
 }

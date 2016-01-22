@@ -21,6 +21,7 @@ public:
 public slots:
   void UpdateAutostart();
   void UpdateAutoUpdateCheck();
+  void UpdateUploadMetadata();
   void LoadSettings();
 };
 
