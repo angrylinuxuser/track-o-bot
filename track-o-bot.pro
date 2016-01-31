@@ -1,5 +1,5 @@
 TARGET = Track-o-Bot
-VERSION = 0.6.2
+VERSION = 0.7.0
 
 CONFIG += qt precompile_header debug_and_release c++11
 QT += core widgets network
@@ -17,16 +17,17 @@ HEADERS = src/Local.h \
           src/ui/AccountTab.h \
           src/ui/LogTab.h \
           src/ui/AboutTab.h \
-          src/Core.h \
           src/Logger.h \
           src/WebProfile.h \
           src/HearthstoneLogWatcher.h \
           src/HearthstoneLogTracker.h \
+          src/Hearthstone.h \
           src/MLP.h \
           src/RankClassifier.h \
           src/Settings.h \
           src/ResultTracker.h \
           src/ResultQueue.h \
+          src/Metadata.h \
           src/Trackobot.h
 
 SOURCES = src/Main.cpp \
@@ -37,7 +38,6 @@ SOURCES = src/Main.cpp \
           src/ui/AccountTab.cpp \
           src/ui/LogTab.cpp \
           src/ui/AboutTab.cpp \
-          src/Core.cpp \
           src/Logger.cpp \
           src/Autostart.cpp \
           src/HearthstoneLogWatcher.cpp \
@@ -48,6 +48,7 @@ SOURCES = src/Main.cpp \
           src/ResultTracker.cpp \
           src/ResultQueue.cpp \
           src/Local.cpp \
+          src/Metadata.cpp \
           src/Trackobot.cpp
 
 FORMS   = src/ui/MainWindow.ui \

@@ -17,8 +17,7 @@
 #define DEFAULT_WEBSERVICE_URL "https://trackobot.com"
 
 WebProfile::WebProfile() {
-  connect( &mNetworkManager, SIGNAL( sslErrors(QNetworkReply*, const QList<QSslError>&) ),
-      this, SLOT( SSLErrors(QNetworkReply*, const QList<QSslError>&) ) );
+  connect( &mNetworkManager, &QNetworkAccessManager::sslErrors, this, &WebProfile::SSLErrors );
 }
 
 bool JsonFromReply( QNetworkReply *reply, QJsonObject *object ) {
@@ -49,13 +48,24 @@ void WebProfile::UploadResult( const QJsonObject& result )
   QJsonObject params;
   params[ "result" ] = result;
 
-  // Some metadata to find out room for improvement
-  QJsonArray meta;
-  meta.append( Hearthstone::Instance()->Width() );
-  meta.append( Hearthstone::Instance()->Height() );
-  meta.append( VERSION );
-  meta.append( PLATFORM );
-  params[ "_meta" ] = meta;
+  // Optional upload metadata to find out room for improvements
+  if( Settings::Instance()->UploadMetadataEnabled() ) {
+    METADATA( "GAME_WIDTH", Hearthstone::Instance()->Width() );
+    METADATA( "GAME_HEIGHT", Hearthstone::Instance()->Height() );
+    METADATA( "TOB_VERSION", VERSION );
+    METADATA( "PLATFORM", PLATFORM );
+
+    QJsonObject meta;
+    for( auto it : Metadata::Instance()->Map().toStdMap() ) {
+      const QString& key = it.first;
+      const QString& value = it.second;
+
+      meta[ key ] = value;
+    }
+
+    params[ "_meta" ] = meta;
+  }
+  Metadata::Instance()->Clear();
 
   QByteArray data = QJsonDocument( params ).toJson();
 
@@ -98,7 +108,7 @@ QNetworkRequest WebProfile::CreateWebProfileRequest( const QString& path ) {
 void WebProfile::CreateAndStoreAccount() {
   QNetworkRequest request = CreateWebProfileRequest( "/users.json" );
   QNetworkReply *reply = mNetworkManager.post( request, "" );
-  connect( reply, SIGNAL(finished()), this, SLOT(CreateAndStoreAccountHandleReply()) );
+  connect( reply, &QNetworkReply::finished, this, &WebProfile::CreateAndStoreAccountHandleReply );
 }
 
 void WebProfile::CreateAndStoreAccountHandleReply() {
@@ -124,7 +134,7 @@ void WebProfile::CreateAndStoreAccountHandleReply() {
 
 void WebProfile::OpenProfile() {
   QNetworkReply *reply = AuthPostJson( "/one_time_auth.json", "" );
-  connect( reply, SIGNAL( finished() ), this, SLOT( OpenProfileHandleReply() ) );
+  connect( reply, &QNetworkReply::finished, this, &WebProfile::OpenProfileHandleReply );
 }
 
 void WebProfile::OpenProfileHandleReply() {

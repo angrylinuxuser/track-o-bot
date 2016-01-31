@@ -22,7 +22,7 @@
 DEFINE_SINGLETON_SCOPE( Hearthstone );
 
 Hearthstone::Hearthstone()
- : mRestartRequired( false )
+ : mCapture( NULL ), mGameRunning( false )
 {
 #ifdef Q_OS_MAC
     LOG("OS X host");
@@ -34,11 +34,34 @@ Hearthstone::Hearthstone()
  LOG("GNU/Linux host");
  mCapture = new LinuxWindowCapture ( WindowName() );
 #endif
+
+  // On OS X, WindowFound is quite CPU intensive
+  // Starting time for HS is also long
+  // So just check only once in a while
+  mTimer = new QTimer( this );
+  connect( mTimer, &QTimer::timeout, this, &Hearthstone::Update );
+  mTimer->start( 5000 );
 }
 
 Hearthstone::~Hearthstone() {
   if( mCapture != NULL )
     delete mCapture;
+}
+
+void Hearthstone::Update() {
+  bool isRunning = mCapture->WindowFound();
+
+  if( mGameRunning != isRunning ) {
+    mGameRunning = isRunning;
+
+    if( isRunning ) {
+      LOG( "Hearthstone is running" );
+      emit GameStarted();
+    } else {
+      LOG( "Hearthstone stopped" );
+      emit GameStopped();
+    }
+  }
 }
 
 QString Hearthstone::ReadAgentAttribute( const char *attributeName ) const {
@@ -75,8 +98,8 @@ QString Hearthstone::ReadAgentAttribute( const char *attributeName ) const {
   return hs[ QString( attributeName ) ].toString();
 }
 
-bool Hearthstone::Running() const {
-  return mCapture->WindowFound();
+bool Hearthstone::GameRunning() const {
+  return mGameRunning;
 }
 
 #ifdef Q_OS_WIN
@@ -174,7 +197,10 @@ void Hearthstone::EnableLogging() {
   }
 
   // Notify about restart if game is running
-  SetRestartRequired( Running() && logModified );
+  Update();
+  if( GameRunning() && logModified ) {
+    emit GameRequiresRestart();
+  }
 }
 
 void Hearthstone::DisableLogging() {
@@ -208,32 +234,47 @@ QString Hearthstone::LogConfigPath() const {
 }
 
 QString Hearthstone::LogPath( const QString& fileName ) const {
+  static QString hsPath;
+
 #ifdef Q_OS_LINUX
     QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
     QString hsPathLnx = homeLocation + "/.Hearthstone";
     if( hsPathLnx.isEmpty() ) {
       ERR( "Hearthstone path not found" );
       return QString();
-   }
+    }
 
     LOG("HS path: %s/Logs/%s", hsPathLnx.toStdString().c_str(), fileName.toStdString().c_str());
     return QString( "%1/Logs/%2" ).arg( hsPathLnx ).arg( fileName );
+#elif Q_OS_WIN
+    if( hsPath.isEmpty() ) {
+        QString hsPathByAgent = ReadAgentAttribute( "install_dir" );
+
+        QSettings hsKey( "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Hearthstone", QSettings::NativeFormat );
+        QString hsPathByRegistry = hsKey.value( "InstallLocation" ).toString();
+
+        if( hsPathByAgent.isEmpty() && hsPathByRegistry.isEmpty() ) {
+          LOG( "Fall back to default game path" );
+          hsPath = QString( getenv("PROGRAMFILES") ) + "/Hearthstone";
+        } else if( !hsPathByRegistry.isEmpty() ) {
+          hsPath = hsPathByRegistry;
+        } else {
+          hsPath = hsPathByAgent;
+        }
+
+        LOG( "Use Hearthstone location %s", qt2cstr( hsPath ) );
+    }
+#elif defined Q_OS_MAC
+    if( hsPath.isEmpty() ) {
+        hsPath = ReadAgentAttribute( "install_dir" );
+        if( hsPath.isEmpty() ) {
+          LOG( "Fall back to default game path" );
+          hsPath = QStandardPaths::standardLocations( QStandardPaths::ApplicationsLocation ).first() + "/Hearthstone";
+        }
+
+        LOG( "Use Hearthstone location %s", qt2cstr( hsPath ) );
+    }
 #endif
-
-  QString hsPath = ReadAgentAttribute( "install_dir" );
-#ifdef Q_OS_WIN
-  if( hsPath.isEmpty() ) {
-    LOG( "Registry fallback for path" );
-
-    QSettings hsKey( "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Hearthstone", QSettings::NativeFormat );
-    hsPath = hsKey.value( "InstallLocation" ).toString();
-  }
-#endif
-
-  if( hsPath.isEmpty() ) {
-    ERR( "Hearthstone path not found" );
-    return QString();
- }
 
   LOG("HS path: %s/s", hsPath.toStdString().c_str(), fileName.toStdString().c_str());
   return QString( "%1/Logs/%2" ).arg( hsPath ).arg( fileName );
@@ -267,10 +308,3 @@ int Hearthstone::Height() const {
   return mCapture->Height();
 }
 
-void Hearthstone::SetRestartRequired( bool restartRequired ) {
-  mRestartRequired = restartRequired;
-}
-
-bool Hearthstone::RestartRequired() const {
-  return mRestartRequired;
-}
