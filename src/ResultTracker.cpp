@@ -3,8 +3,8 @@
 
 #include <map>
 
-ResultTracker::ResultTracker()
-  : mSpectating( false ), mCurrentGameMode( MODE_UNKNOWN )
+ResultTracker::ResultTracker( QObject *parent )
+  : QObject( parent ), mSpectating( false ), mCurrentGameMode( MODE_UNKNOWN )
 {
   connect( &mLogTracker, &HearthstoneLogTracker::HandleOutcome, this, &ResultTracker::HandleOutcome );
   connect( &mLogTracker, &HearthstoneLogTracker::HandleOrder, this, &ResultTracker::HandleOrder );
@@ -97,7 +97,6 @@ void ResultTracker::HandleTurn( int turn ) {
 
     METADATA( QString( "RANK_CLASSIFIER_%1_RANK" ).arg( turn ), rank );
     METADATA( QString( "RANK_CLASSIFIER_%1_SCORE" ).arg( turn ), score );
-    METADATA( QString( "RANK_CLASSIFIER_%1_LABEL" ).arg( turn ), label );
   }
 }
 

@@ -86,7 +86,7 @@ QString Hearthstone::ReadAgentAttribute( const char *attributeName ) const {
 
   QFile file( path );
   if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-    ERR( "Couldn't open %s (%d)", qt2cstr( path ), file.error() );
+    DBG( "Couldn't open %s (%d)", qt2cstr( path ), file.error() );
     return "";
   }
 
@@ -233,7 +233,7 @@ QString Hearthstone::LogConfigPath() const {
   return configPath;
 }
 
-QString Hearthstone::LogPath( const QString& fileName ) const {
+QString Hearthstone::DetectHearthstonePath() const {
   static QString hsPath;
 
 #ifdef Q_OS_LINUX
@@ -244,18 +244,17 @@ QString Hearthstone::LogPath( const QString& fileName ) const {
       return QString();
     }
 
-    LOG("HS path: %s/Logs/%s", hsPathLnx.toStdString().c_str(), fileName.toStdString().c_str());
-    return QString( "%1/Logs/%2" ).arg( hsPathLnx ).arg( fileName );
+    LOG("HS path: %s/Logs/", hsPathLnx.toStdString().c_str());
+    return QString( "%1/Logs/" ).arg( hsPathLnx );
 #elif Q_OS_WIN
     if( hsPath.isEmpty() ) {
         QString hsPathByAgent = ReadAgentAttribute( "install_dir" );
-
         QSettings hsKey( "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Hearthstone", QSettings::NativeFormat );
         QString hsPathByRegistry = hsKey.value( "InstallLocation" ).toString();
 
         if( hsPathByAgent.isEmpty() && hsPathByRegistry.isEmpty() ) {
-          LOG( "Fall back to default game path" );
-          hsPath = QString( getenv("PROGRAMFILES") ) + "/Hearthstone";
+            LOG( "Game folder not found. Fall back to default game path for now. You should set the path manually in the settings!" );
+            hsPath = QString( getenv("PROGRAMFILES") ) + "/Hearthstone";
         } else if( !hsPathByRegistry.isEmpty() ) {
           hsPath = hsPathByRegistry;
         } else {
@@ -266,18 +265,11 @@ QString Hearthstone::LogPath( const QString& fileName ) const {
     }
 #elif defined Q_OS_MAC
     if( hsPath.isEmpty() ) {
-        hsPath = ReadAgentAttribute( "install_dir" );
-        if( hsPath.isEmpty() ) {
-          LOG( "Fall back to default game path" );
-          hsPath = QStandardPaths::standardLocations( QStandardPaths::ApplicationsLocation ).first() + "/Hearthstone";
-        }
-
-        LOG( "Use Hearthstone location %s", qt2cstr( hsPath ) );
+      LOG( "Fall back to default game path. You should set the path manually in the settings!" );
+      hsPath = QStandardPaths::standardLocations( QStandardPaths::ApplicationsLocation ).first() + "/Hearthstone";
     }
 #endif
-
-  LOG("HS path: %s/s", hsPath.toStdString().c_str(), fileName.toStdString().c_str());
-  return QString( "%1/Logs/%2" ).arg( hsPath ).arg( fileName );
+  return hsPath;
 }
 
 QString Hearthstone::WindowName() const {
