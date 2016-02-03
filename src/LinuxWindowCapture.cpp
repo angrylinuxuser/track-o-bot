@@ -102,7 +102,7 @@ bool LinuxWindowCapture::WindowRect( int windowId, QRect *rect ) {
         int x,y;
         unsigned int h,w,border,depth;
         Window root;
-        XGetGeometry(disp, windows.at(0), &root, &x, &y, &h, &w, &border, &depth);
+        XGetGeometry(disp, windows.at(0), &root, &x, &y, &w, &h, &border, &depth);
         rect->setRect(x, y, w, h);
         //LOG("Windows geometry: %d, %d, %d, %d", x,y,h,w);
     }
