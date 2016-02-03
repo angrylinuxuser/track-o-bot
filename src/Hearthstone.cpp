@@ -244,7 +244,6 @@ QString Hearthstone::DetectHearthstonePath() const {
       return QString();
     }
 
-<<<<<<< HEAD
     LOG("HS path: %s/Logs/", hsPathLnx.toStdString().c_str());
     return QString( "%1/Logs/" ).arg( hsPathLnx );
 #elif Q_OS_WIN
@@ -263,15 +262,6 @@ QString Hearthstone::DetectHearthstonePath() const {
         }
 
         LOG( "Use Hearthstone location %s", qt2cstr( hsPath ) );
-=======
-    if( hsPathByAgent.isEmpty() && hsPathByRegistry.isEmpty() ) {
-      LOG( "Game folder not found. Fall back to default game path for now. You should set the path manually in the settings!" );
-      hsPath = QString( getenv("PROGRAMFILES") ) + "/Hearthstone";
-    } else if( !hsPathByRegistry.isEmpty() ) {
-      hsPath = hsPathByRegistry;
-    } else {
-      hsPath = hsPathByAgent;
->>>>>>> 62ff673c3064c35ac3106f5025bc079bdc1646e9
     }
 #elif defined Q_OS_MAC
     if( hsPath.isEmpty() ) {
@@ -279,11 +269,6 @@ QString Hearthstone::DetectHearthstonePath() const {
       hsPath = QStandardPaths::standardLocations( QStandardPaths::ApplicationsLocation ).first() + "/Hearthstone";
     }
 #endif
-<<<<<<< HEAD
-=======
-  }
-
->>>>>>> 62ff673c3064c35ac3106f5025bc079bdc1646e9
   return hsPath;
 }
 
