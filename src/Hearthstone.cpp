@@ -244,8 +244,8 @@ QString Hearthstone::DetectHearthstonePath() const {
       return QString();
     }
 
-    LOG("HS path: %s/Logs/", hsPathLnx.toStdString().c_str());
-    return QString( "%1/Logs/" ).arg( hsPathLnx );
+    LOG("HS path: %s/", hsPathLnx.toStdString().c_str());
+    return QString( "%1/" ).arg( hsPathLnx );
 #elif Q_OS_WIN
     if( hsPath.isEmpty() ) {
         QString hsPathByAgent = ReadAgentAttribute( "install_dir" );
