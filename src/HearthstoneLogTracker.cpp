@@ -47,6 +47,7 @@ HearthstoneLogTracker::HearthstoneLogTracker()
     const char *moduleName = LOG_MODULE_NAMES[ i ];
     QString logFilePath = QString( "%1/%2.log" ).arg( logFolderPath ).arg( moduleName );
     LOG("Starting HearthstoneLogTracker: %s", qt2cstr( logFilePath ));
+
     HearthstoneLogWatcher *logWatcher = new HearthstoneLogWatcher( this, logFilePath );
     connect( logWatcher, &HearthstoneLogWatcher::LineAdded, this, &HearthstoneLogTracker::HandleLogLine );
     mLogWatchers.push_back( logWatcher );
