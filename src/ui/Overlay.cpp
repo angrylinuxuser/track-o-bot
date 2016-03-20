@@ -165,6 +165,8 @@ Overlay::Overlay( QWidget *parent )
 
 #ifdef Q_OS_WIN
   setWindowFlags( windowFlags() | Qt::Tool );
+#elif defined Q_OS_LINUX
+  setWindowFlags( windowFlags() | Qt::Tool );
 #else
   setWindowFlags( windowFlags() | Qt::Window );
 #endif
