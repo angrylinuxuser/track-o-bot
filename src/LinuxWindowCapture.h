@@ -34,5 +34,8 @@ public:
   int Width();
   int Height();
 
+  int Left();
+  int Top();
+
   QPixmap Capture( int x, int y, int w, int h );
 };
