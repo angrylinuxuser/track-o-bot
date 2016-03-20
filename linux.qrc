@@ -20,5 +20,6 @@
         <file>icons/person@2x.png</file>
         <file>icons/record@2x.png</file>
         <file>icons/switch@2x.png</file>
+        <file>data/cards.json</file>
     </qresource>
 </RCC>

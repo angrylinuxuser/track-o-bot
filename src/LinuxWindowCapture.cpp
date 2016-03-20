@@ -34,7 +34,8 @@ int LinuxWindowCapture::Width() {
 
 int LinuxWindowCapture::Height() {
   int height = mRect.height();
-  return Fullscreen() ? height : std::max< int >( height - LINUX_WINDOW_TITLE_BAR_HEIGHT, 0 );
+  //return Fullscreen() ? height : std::max< int >( height /*+ LINUX_WINDOW_TITLE_BAR_HEIGHT*/, 0 );
+  return height;
 }
 
 int LinuxWindowCapture::Left() {
@@ -42,12 +43,13 @@ int LinuxWindowCapture::Left() {
 }
 
 int LinuxWindowCapture::Top() {
-  return mRect.y() + ( Fullscreen() ? 0 : LINUX_WINDOW_TITLE_BAR_HEIGHT );
+  return mRect.y() /*+ ( Fullscreen() ? 0 : LINUX_WINDOW_TITLE_BAR_HEIGHT )*/;
 }
 
 QPixmap LinuxWindowCapture::Capture( int x, int y, int w, int h ) {
     LOG("Capturing window: %d, %d, %d, %d", x,y,h,w);
-    QPixmap pixmap = QPixmap::grabWindow(mWinId,
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QPixmap pixmap = screen->grabWindow(mWinId,
                                          x + mRect.x(),
                                          y + mRect.y() + ( Fullscreen() ? 0 : LINUX_WINDOW_TITLE_BAR_HEIGHT ),
                                          w,
@@ -110,7 +112,9 @@ bool LinuxWindowCapture::WindowRect( int windowId, QRect *rect ) {
         int x,y;
         unsigned int h,w,border,depth;
         Window root;
+        Window child;
         XGetGeometry(disp, windows.at(0), &root, &x, &y, &w, &h, &border, &depth);
+        XTranslateCoordinates(disp, windows.at(0), root, 0, 0, &x, &y, &child);
         rect->setRect(x, y, w, h);
         //LOG("Windows geometry: %d, %d, %d, %d", x,y,h,w);
     }

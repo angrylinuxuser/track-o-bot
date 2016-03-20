@@ -120,7 +120,7 @@ unix {
     HEADERS += src/LinuxWindowCapture.h
     SOURCES += src/LinuxWindowCapture.cpp
     RESOURCES = linux.qrc
-    LIBS += -lXext -lX11 -L/usr/lib/x86_64-linux-gnu/
+    LIBS +=  -lGL -lGLU -lXext -lX11 -lXfixes -L/usr/lib/x86_64-linux-gnu/
     CONFIG += link_pkgconfig debug
     PKGCONFIG += x11
     isEmpty(PREFIX){

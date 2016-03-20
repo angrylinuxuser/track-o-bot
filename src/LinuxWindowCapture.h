@@ -2,8 +2,10 @@
 
 #include "WindowCapture.h"
 
-#include <X11/Xlib.h>
 #include <QTimer>
+#include <QGuiApplication>
+#include <QScreen>
+#include <X11/Xlib.h>
 
 // FindWindow is quite intensive in terms of performance
 #define LINUX_UPDATE_WINDOW_DATA_INTERVAL 3000 // ms
@@ -20,7 +22,6 @@ private:
 
   static int FindWindow( const QString& name );
   static bool WindowRect( int windowId, QRect *rect );
-  static QList<Window> listXWindowsRecursive(Display *disp, Window w);
 
   bool Fullscreen();
 
@@ -29,6 +30,7 @@ private slots:
 
 public:
   LinuxWindowCapture( const QString& windowName );
+  static QList<Window> listXWindowsRecursive(Display *disp, Window w);
 
   bool WindowFound();
   int Width();

@@ -15,6 +15,11 @@
 #include <QJsonDocument>
 #include <QFile>
 #include <QMouseEvent>
+#include "../LinuxWindowCapture.h"
+#include <X11/Xlib.h>
+
+#include <X11/extensions/Xfixes.h>
+#include <X11/extensions/shape.h>
 
 #define CHECK_FOR_OVERLAY_HOVER_INTERVAL_MS 100
 
@@ -156,6 +161,8 @@ public:
 
 };
 
+#include <GL/gl.h>
+#include <GL/glx.h>
 
 Overlay::Overlay( QWidget *parent )
   : QMainWindow( parent ), mUI( new Ui::Overlay ), mShowPlayerHistory( PLAYER_UNKNOWN )
@@ -167,6 +174,43 @@ Overlay::Overlay( QWidget *parent )
   setWindowFlags( windowFlags() | Qt::Tool );
 #elif defined Q_OS_LINUX
   setWindowFlags( windowFlags() | Qt::Tool );
+
+  //XVisualInfo visualinfo;
+
+  Display *disp = XOpenDisplay(NULL);
+  /*XMatchVisualInfo(disp, DefaultScreen(disp), 32, TrueColor, &visualinfo);
+  XSync(disp, False);
+  GLXContext glcontext = glXCreateContext( disp, &visualinfo, 0, True ) ;
+  XSync(disp, False);
+  if (!glcontext)
+  {
+     printf("X11 server does not support OpenGL\n" ) ;
+     exit(1) ;
+  }*/
+  QList<Window> windows = LinuxWindowCapture::listXWindowsRecursive(disp, winId());
+
+  int numWindows = windows.length();
+  if(numWindows > 0){
+      Window w = windows.at(0);
+      //glXMakeCurrent( disp, w, glcontext ) ;
+      XserverRegion region = XFixesCreateRegion (disp, NULL, 0);
+
+      //XFixesSetWindowShapeRegion (disp, w, ShapeBounding, 0, 0, 0);
+      //XFixesSetWindowShapeRegion (disp, w, ShapeInput, 0, 0, region);
+      Pixmap p;
+      p = XCreatePixmap(disp, w, geometry().width(), geometry().height(), 1);
+      XShapeCombineMask(disp, w, ShapeBounding, 0, 0, p, ShapeSubtract);
+
+      /*glClearColor( 0.7, 0.7, 0.7, 0.7) ;
+      glClear(GL_COLOR_BUFFER_BIT) ;
+      glXSwapBuffers( disp, w) ;
+      glXWaitGL() ;*/
+      //XDrawString( disp, w, gc, 10, 20, "Hello ! ", 7) ;
+      XDestroyWindow( disp, w ) ;
+
+      XFixesDestroyRegion (disp, region);
+  }
+  XCloseDisplay(disp);
 #else
   setWindowFlags( windowFlags() | Qt::Window );
 #endif
@@ -275,6 +319,20 @@ void Overlay::paintEvent( QPaintEvent* ) {
     QPoint pos = rect.center() + QPoint( rect.width() / 2 + 10, -wnd.Height() / 2 );
     PaintHistoryInScreen( painter, wnd, pos );
   }
+}
+
+void Overlay::mousePressEvent(QMouseEvent *event){
+    LOG("clic");
+    event->ignore();
+}
+
+bool Overlay::event(QEvent *event){
+    if(event->type() == QEvent::MouseButtonPress){
+        LOG("Mouse down");
+        event->ignore();
+        return false;
+    }
+    return true;
 }
 
 void Overlay::HandleGameWindowChanged( int x, int y, int w, int h ) {
