@@ -37,6 +37,14 @@ int LinuxWindowCapture::Height() {
   return Fullscreen() ? height : std::max< int >( height - LINUX_WINDOW_TITLE_BAR_HEIGHT, 0 );
 }
 
+int LinuxWindowCapture::Left() {
+  return mRect.x();
+}
+
+int LinuxWindowCapture::Top() {
+  return mRect.y() + ( Fullscreen() ? 0 : LINUX_WINDOW_TITLE_BAR_HEIGHT );
+}
+
 QPixmap LinuxWindowCapture::Capture( int x, int y, int w, int h ) {
     LOG("Capturing window: %d, %d, %d, %d", x,y,h,w);
     QPixmap pixmap = QPixmap::grabWindow(mWinId,
