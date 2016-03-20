@@ -1,19 +1,14 @@
 #include "ResultQueue.h"
 
-#define RESULT_QUEUE_CHECK_PERIOD (30 * 60 * 1000)
-#define RESULT_QUEUE_UPLOAD_PERIOD (5 * 60 * 1000)
+#define RESULT_QUEUE_UPLOAD_PERIOD (60 * 1000)
 
 ResultQueue::ResultQueue()
 {
   connect( &mWebProfile, &WebProfile::UploadResultFailed, this, &ResultQueue::UploadResultFailed );
   connect( &mWebProfile, &WebProfile::UploadResultSucceeded, this, &ResultQueue::UploadResultSucceeded );
 
-  mCheckTimer = new QTimer( this );
-  connect( mCheckTimer, &QTimer::timeout, this, &ResultQueue::Check );
-  mCheckTimer->start( RESULT_QUEUE_CHECK_PERIOD );
-
   mUploadTimer = new QTimer( this );
-  connect( mUploadTimer, &QTimer::timeout, this, &ResultQueue::Upload );
+  connect( mUploadTimer, &QTimer::timeout, this, &ResultQueue::UploadQueue );
 
   Load();
 }
@@ -92,7 +87,6 @@ void ResultQueue::Add( const Result& res ) {
     }
   }
 
-  // Finally upload the result
   LOG( "Result: %s %s vs. %s as %s. Went %s",
       MODE_NAMES[ res.mode ],
       OUTCOME_NAMES[ res.outcome ],
@@ -100,15 +94,20 @@ void ResultQueue::Add( const Result& res ) {
       CLASS_NAMES[ res.hero ],
       ORDER_NAMES[ res.order ] );
 
-  mQueue.append( res.AsJson() );
-  Upload();
+  // Try to upload immediately
+  UploadResult( res.AsJson() );
 }
 
-void ResultQueue::UploadResultFailed( const QJsonObject& result, int errorCode ) {
-  ERR( "There was a problem uploading the result (Code %d). Will save the result locally and try again later.", errorCode );
+void ResultQueue::UploadResult( const QJsonObject& result ) {
+  LOG( "Uploading result..." );
+  mWebProfile.UploadResult( result );
+}
+
+void ResultQueue::UploadResultFailed( const QJsonObject& result, int replyCode, int httpStatusCode ) {
+  ERR( "There was a problem uploading the result (Reply %d, HTTP %d). Will save the result locally and try again later.", replyCode, httpStatusCode );
   mQueue.append( result );
 
-  // Upload not working, check periodically from now on
+  // Upload not working
   mUploadTimer->stop();
 }
 
@@ -124,24 +123,10 @@ void ResultQueue::UploadResultSucceeded( const QJsonObject& response ) {
   mUploadTimer->start( RESULT_QUEUE_UPLOAD_PERIOD );
 }
 
-void ResultQueue::Upload() {
+void ResultQueue::UploadQueue() {
   if( !mQueue.isEmpty() ) {
-    if( mQueue.size() == 1 ) {
-      LOG( "Upload result..." );
-    } else {
-      LOG( "Found an old result. Uploading that first..." );
-    }
+    LOG( "Uploading an old result..." );
     QJsonObject result = mQueue.takeAt( 0 ).toObject();
-
-    mWebProfile.UploadResult( result );
+    UploadResult( result );
   }
-}
-
-void ResultQueue::Check() {
-  if( mUploadTimer->isActive() ) {
-    // Upload works, nothing to be done
-    return;
-  }
-
-  Upload();
 }

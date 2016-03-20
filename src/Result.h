@@ -4,6 +4,9 @@
 
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QDateTime>
+#include <QString>
+#include <QList>
 
 typedef enum {
   PLAYER_SELF = 0,
@@ -71,7 +74,7 @@ typedef enum {
   CLASS_SHAMAN,
   CLASS_DRUID,
   CLASS_UNKNOWN
-} Class;
+} HeroClass;
 
 const char CLASS_NAMES[][128] = {
   "priest",
@@ -94,15 +97,15 @@ class CardHistoryItem {
 public:
   int turn;
   Player player;
-  string cardId;
+  QString cardId;
   int internalId;
 
-  CardHistoryItem( int turn, Player player, const string& cardId, int internalId = 0 )
+  CardHistoryItem( int turn, Player player, const QString& cardId, int internalId = 0 )
     : turn( turn ), player( player ), cardId( cardId ), internalId( internalId )
   {
   }
 };
-typedef vector< CardHistoryItem > CardHistoryList;
+typedef QList< CardHistoryItem > CardHistoryList;
 
 class Result {
 public:
@@ -110,8 +113,8 @@ public:
   Outcome outcome;
   GoingOrder order;
 
-  Class hero;
-  Class opponent;
+  HeroClass hero;
+  HeroClass opponent;
 
   CardHistoryList cardList;
 
@@ -119,6 +122,7 @@ public:
   int legend;
 
   int duration;
+  QDateTime added;
 
   Result() {
     Reset();
@@ -148,6 +152,7 @@ public:
     result[ "win" ]      = ( outcome == OUTCOME_VICTORY );
     result[ "mode" ]     = MODE_NAMES[ mode ];
     result[ "duration" ] = duration;
+    result[ "added" ]    = added.toTimeSpec( Qt::OffsetFromUTC ).toString( Qt::ISODate );
 
     if( mode == MODE_RANKED && rank != RANK_UNKNOWN && legend == LEGEND_UNKNOWN ) {
       result[ "rank" ] = rank;
@@ -159,9 +164,13 @@ public:
     QJsonArray card_history;
     for( const CardHistoryItem& chi : cardList ) {
       QJsonObject item;
+
+      if( chi.cardId.isEmpty() )
+        continue;
+
       item[ "turn" ] = chi.turn;
       item[ "player" ] = chi.player == PLAYER_SELF ? "me" : "opponent";
-      item[ "card_id" ] = chi.cardId.c_str();
+      item[ "card_id" ] = chi.cardId;
       card_history.append(item);
     }
     result[ "card_history" ] = card_history;
