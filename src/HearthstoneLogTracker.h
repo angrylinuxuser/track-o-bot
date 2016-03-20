@@ -69,5 +69,9 @@ signals:
 public:
   HearthstoneLogTracker( QObject *parent = 0 );
 
+<<<<<<< HEAD
   const ::CardHistoryList& CardHistoryList() const { return mCardsPlayed; }
+=======
+  const CardHistoryList& CardHistoryList() const { return mCardsPlayed; }
+>>>>>>> 4a9b9183832f2d2d8410193d25887be3350812d5
 };

@@ -29,12 +29,13 @@ Trackobot::Trackobot( int argc, char **argv )
   : mApp( argc, argv ),
     mWindow( NULL ),
     mOverlay( NULL ),
-    mSingleInstanceServer( NULL ){
-        SetupApplication();
-        mWebProfile = new WebProfile( this );
-        mResultTracker = new ResultTracker( this );
-        mLogTracker = new HearthstoneLogTracker( this );
-    }
+    mSingleInstanceServer( NULL )
+{
+  SetupApplication();
+  mWebProfile = new WebProfile( this );
+  mResultTracker = new ResultTracker( this );
+  mLogTracker = new HearthstoneLogTracker( this );
+}
 
 Trackobot::~Trackobot() {
   if( mOverlay ) {
