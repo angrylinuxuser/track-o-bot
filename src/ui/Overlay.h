@@ -30,6 +30,8 @@ private:
   QRect mPlayerDeckRect;
   QRect mOpponentDeckRect;
 
+  QRect mHSRect;
+
   QTimer mCheckForHoverTimer;
 
   void LoadCards();
@@ -38,8 +40,6 @@ private:
 
 protected:
   void paintEvent( QPaintEvent *event );
-  void mousePressEvent(QMouseEvent *event);
-  bool event(QEvent *event);
 
 public:
   explicit Overlay( QWidget *parent = 0 );

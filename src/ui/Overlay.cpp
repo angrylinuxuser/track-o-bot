@@ -161,9 +161,6 @@ public:
 
 };
 
-#include <GL/gl.h>
-#include <GL/glx.h>
-
 Overlay::Overlay( QWidget *parent )
   : QMainWindow( parent ), mUI( new Ui::Overlay ), mShowPlayerHistory( PLAYER_UNKNOWN )
 {
@@ -173,44 +170,11 @@ Overlay::Overlay( QWidget *parent )
 #ifdef Q_OS_WIN
   setWindowFlags( windowFlags() | Qt::Tool );
 #elif defined Q_OS_LINUX
-  setWindowFlags( windowFlags() | Qt::Tool );
-
-  //XVisualInfo visualinfo;
-
-  Display *disp = XOpenDisplay(NULL);
-  /*XMatchVisualInfo(disp, DefaultScreen(disp), 32, TrueColor, &visualinfo);
-  XSync(disp, False);
-  GLXContext glcontext = glXCreateContext( disp, &visualinfo, 0, True ) ;
-  XSync(disp, False);
-  if (!glcontext)
-  {
-     printf("X11 server does not support OpenGL\n" ) ;
-     exit(1) ;
-  }*/
-  QList<Window> windows = LinuxWindowCapture::listXWindowsRecursive(disp, winId());
-
-  int numWindows = windows.length();
-  if(numWindows > 0){
-      Window w = windows.at(0);
-      //glXMakeCurrent( disp, w, glcontext ) ;
-      XserverRegion region = XFixesCreateRegion (disp, NULL, 0);
-
-      //XFixesSetWindowShapeRegion (disp, w, ShapeBounding, 0, 0, 0);
-      //XFixesSetWindowShapeRegion (disp, w, ShapeInput, 0, 0, region);
-      Pixmap p;
-      p = XCreatePixmap(disp, w, geometry().width(), geometry().height(), 1);
-      XShapeCombineMask(disp, w, ShapeBounding, 0, 0, p, ShapeSubtract);
-
-      /*glClearColor( 0.7, 0.7, 0.7, 0.7) ;
-      glClear(GL_COLOR_BUFFER_BIT) ;
-      glXSwapBuffers( disp, w) ;
-      glXWaitGL() ;*/
-      //XDrawString( disp, w, gc, 10, 20, "Hello ! ", 7) ;
-      XDestroyWindow( disp, w ) ;
-
-      XFixesDestroyRegion (disp, region);
-  }
-  XCloseDisplay(disp);
+  setWindowFlags( windowFlags() | Qt::Window | Qt::X11BypassWindowManagerHint);
+  setParent(0);
+  setAttribute(Qt::WA_NoSystemBackground, true);
+  setAttribute(Qt::WA_TransparentForMouseEvents, true);
+  //setAttribute(Qt::WA_PaintOnScreen);
 #else
   setWindowFlags( windowFlags() | Qt::Window );
 #endif
@@ -321,27 +285,19 @@ void Overlay::paintEvent( QPaintEvent* ) {
   }
 }
 
-void Overlay::mousePressEvent(QMouseEvent *event){
-    LOG("clic");
-    event->ignore();
-}
-
-bool Overlay::event(QEvent *event){
-    if(event->type() == QEvent::MouseButtonPress){
-        LOG("Mouse down");
-        event->ignore();
-        return false;
-    }
-    return true;
-}
-
 void Overlay::HandleGameWindowChanged( int x, int y, int w, int h ) {
   move( x, y );
   setFixedSize( w, h );
-
   int minWidth = h * 4 / 3;
   mPlayerDeckRect = QRect( w / 2 + 0.440 * minWidth, h * 0.510, 0.05 * minWidth, h * 0.170 );
   mOpponentDeckRect = mPlayerDeckRect.translated( -0.005 * minWidth, -0.275 * h );
+
+#ifdef Q_OS_LINUX
+  mHSRect = QRect(mPlayerDeckRect.x(), 0, w - mPlayerDeckRect.x(), h - 100);
+  LOG("%d %d %d %d", mHSRect.x(), mHSRect.y(), mHSRect.width(), mHSRect.height());
+  QRegion region = QRegion(mHSRect, QRegion::Rectangle);
+  setMask(region);
+#endif
 
   update();
 }
