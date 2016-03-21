@@ -30,8 +30,6 @@ private:
   QRect mPlayerDeckRect;
   QRect mOpponentDeckRect;
 
-  QRect mHSRect;
-
   QTimer mCheckForHoverTimer;
 
   void LoadCards();
