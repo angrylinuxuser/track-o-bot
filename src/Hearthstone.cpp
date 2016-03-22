@@ -62,9 +62,9 @@ void Hearthstone::Update() {
 				lastWidth != mCapture->Width() || lastHeight != mCapture->Height() )
 		{
 			lastLeft = mCapture->Left(),
-							 lastTop = mCapture->Top(),
-							 lastWidth = mCapture->Width(),
-							 lastHeight = mCapture->Height();
+			lastTop = mCapture->Top(),
+			lastWidth = mCapture->Width(),
+			lastHeight = mCapture->Height();
 
       DBG( "HS window changed %d %d %d %d", lastLeft, lastTop, lastWidth, lastHeight );
       emit GameWindowChanged( lastLeft, lastTop, lastWidth, lastHeight );
