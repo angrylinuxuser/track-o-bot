@@ -141,10 +141,7 @@ unix {
     target.path = $$PREFIX/bin
     icon.path = $$PREFIX/share/icons/hicolor/256x256/apps
     icon.files += icons/Track-o-Bot.png
-    i18n.path = $$PREFIX/share/qt5/translations
-    i18n.files += \
-        i18n/Track-o-Bot_fr_FR.qm
-    INSTALLS += target desktop icon i18n
+    INSTALLS += target desktop icon
 }
 
 DISTFILES +=
