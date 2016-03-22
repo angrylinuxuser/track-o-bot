@@ -22,6 +22,7 @@
 #include "WebProfile.h"
 
 #include <cassert>
+#include <QTranslator>
 
 Updater *gUpdater = NULL;
 
@@ -106,6 +107,21 @@ void Trackobot::SetupApplication() {
   QIcon icon( ":/icons/win.ico" );
 #elif defined Q_OS_LINUX
   QIcon icon = QIcon( ":/icons/Track-o-Bot.png" );
+
+  /*QTranslator qtTranslator;
+  qtTranslator.load("qt_" + QLocale::system().name(),
+          QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+  mApp.installTranslator(&qtTranslator);*/
+
+  QTranslator *translator = new QTranslator();
+  QLocale locale = QLocale::system();
+  LOG(locale.name().toLatin1());
+  if(translator->load(
+              QLatin1String("Track-o-Bot_") + locale.name().toLatin1(),
+              QLatin1String(":/i18n"))){
+      LOG("Translation loaded");
+      mApp.installTranslator(translator);
+  }
 #endif
   mApp.setApplicationName( "Track-o-Bot" ); // for proper DataLocation handling
   mApp.setOrganizationName( "spidy.ch" );
