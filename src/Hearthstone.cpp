@@ -53,17 +53,18 @@ Hearthstone::~Hearthstone() {
 }
 
 void Hearthstone::Update() {
-  bool isRunning = mCapture->WindowFound();
+	bool isRunning = mCapture->WindowFound();
 
-  if( isRunning ) {
-    static int lastLeft = 0, lastTop = 0, lastWidth = 0, lastHeight = 0;
-    if( lastLeft != mCapture->Left() || lastTop != mCapture->Top() ||
-        lastWidth != mCapture->Width() || lastHeight != mCapture->Height() )
-    {
-      lastLeft = mCapture->Left(),
-               lastTop = mCapture->Top(),
-               lastWidth = mCapture->Width(),
-               lastHeight = mCapture->Height();
+	if( isRunning ) {
+		emit FocusChanged(mCapture->Focus());
+		static int lastLeft = 0, lastTop = 0, lastWidth = 0, lastHeight = 0;
+		if( lastLeft != mCapture->Left() || lastTop != mCapture->Top() ||
+				lastWidth != mCapture->Width() || lastHeight != mCapture->Height() )
+		{
+			lastLeft = mCapture->Left(),
+							 lastTop = mCapture->Top(),
+							 lastWidth = mCapture->Width(),
+							 lastHeight = mCapture->Height();
 
       DBG( "HS window changed %d %d %d %d", lastLeft, lastTop, lastWidth, lastHeight );
       emit GameWindowChanged( lastLeft, lastTop, lastWidth, lastHeight );
