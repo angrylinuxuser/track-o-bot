@@ -54,6 +54,7 @@ signals:
   void GameStopped();
   void GameRequiresRestart();
   void GameWindowChanged( int x, int y, int w, int h );
+  void FocusChanged(bool value);
 
 private slots:
   void Update();

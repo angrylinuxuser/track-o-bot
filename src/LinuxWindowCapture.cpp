@@ -122,3 +122,15 @@ bool LinuxWindowCapture::WindowRect( int windowId, QRect *rect ) {
     XCloseDisplay(disp);
   return numWindows > 0;
 }
+
+bool LinuxWindowCapture::Focus() {
+  Display *dpy = XOpenDisplay(NULL);
+  Window w;
+  int revert_to;
+  XGetInputFocus(dpy, &w, &revert_to);
+  XCloseDisplay(dpy);
+  if(static_cast<int>(w) == mWinId)
+    return true;
+  else
+    return false;
+}

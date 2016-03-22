@@ -16,5 +16,6 @@ public:
   virtual int Top() = 0;
 
   virtual QPixmap Capture( int x, int y, int w, int h ) = 0;
+  virtual bool Focus() = 0;
 };
 
