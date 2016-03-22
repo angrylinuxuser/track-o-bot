@@ -35,7 +35,7 @@ private:
   void Initialize();
 
 public:
-  Trackobot( int argc, char **argv );
+  Trackobot( int& argc, char **argv );
   ~Trackobot();
   int Run();
 };
