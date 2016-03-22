@@ -9,6 +9,7 @@ OBJECTS_DIR = tmp
 MOC_DIR = tmp
 RCC_DIR = tmp
 UI_DIR = tmp
+TRANSLATIONS = i18n/Track-o-Bot_fr_FR.ts
 
 PRECOMPILED_HEADER = src/Local.h
 HEADERS = src/Local.h \
@@ -77,7 +78,7 @@ mac {
   SOURCES += src/OSXWindowCapture.cpp
 
   # thanks qt for forcing me to do this stuff
-  INCLUDEPATH += "\ -F/Library/Frameworks" 
+  INCLUDEPATH += "\ -F/Library/Frameworks"
   LIBS += -framework ApplicationServices -F/Library/Frameworks -framework Sparkle -framework AppKit
 
   OBJECTIVE_SOURCES += \
@@ -123,16 +124,17 @@ unix {
     LIBS +=  -lGL -lGLU -lXext -lX11 -lXfixes -L/usr/lib/x86_64-linux-gnu/
     CONFIG += link_pkgconfig debug
     PKGCONFIG += x11
+    CODECFORSRC = UTF-8
     isEmpty(PREFIX){
         PREFIX = /usr/local
     }
-    
+
     greaterThan(QT_MAJOR_VERSION, 4) {
         QT += widgets
     } else {
-    	QT += gui
+        QT += gui
     }
-    
+
     desktop.path = $$PREFIX/share/applications
     desktop.files += \
         assets/track-o-bot.desktop
@@ -141,4 +143,6 @@ unix {
     icon.files += icons/Track-o-Bot.png
     INSTALLS += target desktop icon
 }
+
+DISTFILES +=
 
