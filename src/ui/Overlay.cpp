@@ -392,9 +392,5 @@ void Overlay::HandleOverlaySettingChanged( bool enabled ) {
 
 void Overlay::HandleFocusChanged(bool focus)
 {
-  if(focus)
-    show();
-  else
-    hide();
-  update();
+  focus ? show() : hide();
 }
