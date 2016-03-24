@@ -27,7 +27,7 @@
 Updater *gUpdater = NULL;
 
 Trackobot::Trackobot( int& argc, char **argv )
-  : mApp( argc, argv ),
+  : QApplication( argc, argv ),
     mWindow( NULL ),
     mOverlay( NULL ),
     mSingleInstanceServer( NULL )
@@ -71,7 +71,7 @@ int Trackobot::Run() {
 
   SetupLogging();
 
-  int exitCode = mApp.exec();
+  int exitCode = exec();
 
   // Tear down
   LOG( "Shutdown" );
@@ -100,7 +100,7 @@ bool Trackobot::IsAlreadyRunning() {
 
 void Trackobot::SetupApplication() {
 #if defined Q_OS_MAC
-  mApp.setAttribute( Qt::AA_UseHighDpiPixmaps );
+  setAttribute( Qt::AA_UseHighDpiPixmaps );
   QIcon icon( ":/icons/mac_black.png" );
   icon.addFile( ":/icons/mac_black@2x.png" );
 #elif defined Q_OS_WIN
@@ -111,7 +111,7 @@ void Trackobot::SetupApplication() {
   /*QTranslator qtTranslator;
   qtTranslator.load("qt_" + QLocale::system().name(),
           QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-  mApp.installTranslator(&qtTranslator);*/
+  installTranslator(&qtTranslator);*/
 
   QTranslator *translator = new QTranslator();
   QLocale locale = QLocale::system();
@@ -120,13 +120,13 @@ void Trackobot::SetupApplication() {
               QLatin1String("Track-o-Bot_") + locale.name().toLatin1(),
               QLatin1String(":/i18n"))){
       LOG("Translation loaded");
-      mApp.installTranslator(translator);
+      installTranslator(translator);
   }
 #endif
-  mApp.setApplicationName( "Track-o-Bot" ); // for proper DataLocation handling
-  mApp.setOrganizationName( "spidy.ch" );
-  mApp.setOrganizationDomain( "spidy.ch" );
-  mApp.setWindowIcon( icon );
+  setApplicationName( "Track-o-Bot" ); // for proper DataLocation handling
+  setOrganizationName( "spidy.ch" );
+  setOrganizationDomain( "spidy.ch" );
+  setWindowIcon( icon );
 }
 
 void Trackobot::SetupLogging() {
@@ -136,7 +136,7 @@ void Trackobot::SetupLogging() {
     QDir dir;
     dir.mkpath( dataLocation );
   }
-  QString logFilePath = dataLocation + QDir::separator() + mApp.applicationName() + ".log";
+  QString logFilePath = dataLocation + QDir::separator() + applicationName() + ".log";
   Logger::Instance()->SetLogPath( logFilePath );
   Logger::Instance()->StartProcessing();
 }
