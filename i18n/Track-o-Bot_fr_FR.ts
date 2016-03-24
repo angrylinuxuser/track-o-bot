@@ -116,7 +116,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="src/ui/MainWindow.ui" line="97"/>
         <source>Log</source>
-        <translation>Journeaux</translation>
+        <translation>Journaux</translation>
     </message>
     <message>
         <location filename="src/ui/MainWindow.ui" line="109"/>
@@ -222,7 +222,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="src/ui/SettingsWidget.ui" line="265"/>
         <source>Debug mode increases verbosity of output in the log tab and sends diagnostic data.</source>
-        <translation>Le mode débogage permet d&apos;afficher plus d&apos;informations dans les journeaux et d&apos;envoyer des données de diagnostic.</translation>
+        <translation>Le mode débogage permet d&apos;afficher plus d&apos;informations dans les journaux et d&apos;envoyer des données de diagnostic.</translation>
     </message>
     <message>
         <location filename="src/ui/SettingsWidget.ui" line="275"/>
