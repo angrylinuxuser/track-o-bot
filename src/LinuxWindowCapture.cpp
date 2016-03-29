@@ -4,7 +4,7 @@
 #define LINUX_WINDOW_TITLE_BAR_HEIGHT 22
 
 LinuxWindowCapture::LinuxWindowCapture()
-  : mWindowName( windowName ), mWinId( 0 )
+  : mWinId( 0 )
 {
   mTimer = new QTimer( this );
   connect( mTimer, SIGNAL( timeout() ), this, SLOT( Update() ) );
@@ -16,6 +16,7 @@ LinuxWindowCapture::LinuxWindowCapture()
 void LinuxWindowCapture::Update() {
   if( mWinId == 0 ) {
     QString windowName = "Hearthstone";
+    QString locale = ReadAgentAttribute( "selected_locale" );
     if( locale == "zhCN" ) {
          windowName = QString::fromWCharArray( L"炉石传说" );
     } else if( locale == "zhTW" ) {
@@ -30,6 +31,31 @@ void LinuxWindowCapture::Update() {
     // Window became invalid
     mWinId = 0;
   }
+}
+
+QString LinuxWindowCapture::ReadAgentAttribute( const char *attributeName ) const {
+    LOG("HS ReadAgentAttribute: %s", attributeName);
+  QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
+  QString path = homeLocation + "/.Hearthstone/agent.db";
+  if(QFile(path).exists()){
+    LOG("HS Agent DB file (agent.db): FOUND");
+  }
+  else{
+      LOG("HS Agent DB file (agent.db): NOT FOUND");
+  }
+
+  QFile file( path );
+  if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+    DBG( "Couldn't open %s (%d)", qt2cstr( path ), file.error() );
+    return "";
+  }
+
+  QString contents = file.readAll();
+  QJsonDocument doc = QJsonDocument::fromJson( contents.toUtf8() );
+  QJsonObject root = doc.object();
+
+  QJsonObject hs = root["/game/hs_beta"].toObject()["resource"].toObject()["game"].toObject();
+  return hs[ QString( attributeName ) ].toString();
 }
 
 bool LinuxWindowCapture::WindowFound() {

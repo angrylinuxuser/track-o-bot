@@ -5,6 +5,10 @@
 #include <QTimer>
 #include <QGuiApplication>
 #include <QScreen>
+#include <QFile>
+#include <QDesktopServices>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <X11/Xlib.h>
 
 // FindWindow is quite intensive in terms of performance
@@ -18,6 +22,7 @@ private:
   QTimer*  mTimer;
   int      mWinId;
   QRect   mRect;
+  QString ReadAgentAttribute( const char *attributeName ) const;
 
   static int FindWindow( const QString& name );
   static bool WindowRect( int windowId, QRect *rect );
