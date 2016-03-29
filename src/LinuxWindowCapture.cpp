@@ -3,7 +3,7 @@
 // remove the window title bar which we are not interested in
 #define LINUX_WINDOW_TITLE_BAR_HEIGHT 22
 
-LinuxWindowCapture::LinuxWindowCapture( const QString& windowName )
+LinuxWindowCapture::LinuxWindowCapture()
   : mWindowName( windowName ), mWinId( 0 )
 {
   mTimer = new QTimer( this );
@@ -15,7 +15,15 @@ LinuxWindowCapture::LinuxWindowCapture( const QString& windowName )
 
 void LinuxWindowCapture::Update() {
   if( mWinId == 0 ) {
-    mWinId = FindWindow( mWindowName );
+    QString windowName = "Hearthstone";
+    if( locale == "zhCN" ) {
+         windowName = QString::fromWCharArray( L"炉石传说" );
+    } else if( locale == "zhTW" ) {
+         windowName = QString::fromWCharArray( L"《爐石戰記》" );
+    } else if( locale == "koKR") {
+         windowName = QString::fromWCharArray( L"하스스톤" );
+    }
+    mWinId = FindWindow( windowName );
   }
 
   if( mWinId && !WindowRect( mWinId, &mRect ) ) {

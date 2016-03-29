@@ -16,7 +16,6 @@ Q_OBJECT
 
 private:
   QTimer*  mTimer;
-  QString   mWindowName;
   int      mWinId;
   QRect   mRect;
 
@@ -29,7 +28,7 @@ private slots:
   void Update();
 
 public:
-  LinuxWindowCapture( const QString& windowName );
+  LinuxWindowCapture();
   static QList<Window> listXWindowsRecursive(Display *disp, Window w);
 
   bool WindowFound();

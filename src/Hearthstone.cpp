@@ -26,13 +26,13 @@ Hearthstone::Hearthstone()
 {
 #ifdef Q_OS_MAC
     LOG("OS X host");
-  mCapture = new OSXWindowCapture( WindowName() );
+  mCapture = new OSXWindowCapture();
 #elif defined Q_OS_WIN
     LOG("Windows host");
-  mCapture = new WinWindowCapture( WindowName() );
+  mCapture = new WinWindowCapture();
 #elif defined Q_OS_LINUX
  LOG("GNU/Linux host");
- mCapture = new LinuxWindowCapture ( WindowName() );
+ mCapture = new LinuxWindowCapture();
 #endif
 
   // On OS X, WindowFound is quite CPU intensive
@@ -290,26 +290,6 @@ QString Hearthstone::DetectHearthstonePath() const {
     }
 #endif
   return hsPath;
-}
-
-QString Hearthstone::WindowName() const {
-  QString locale = ReadAgentAttribute( "selected_locale" );
-  QString windowName = "Hearthstone";
-
-#ifdef Q_OS_MAC
-  // Under mac the window name is not localized
-  return windowName;
-#endif
-
-  if( locale == "zhCN" ) {
-    windowName = QString::fromWCharArray( L"炉石传说" );
-  } else if( locale == "zhTW" ) {
-    windowName = QString::fromWCharArray( L"《爐石戰記》" );
-  } else if( locale == "koKR") {
-    windowName = QString::fromWCharArray( L"하스스톤" );
-  }
-
-  return windowName;
 }
 
 int Hearthstone::Width() const {
