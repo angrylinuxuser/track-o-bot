@@ -400,5 +400,5 @@ void Overlay::HandleOverlaySettingChanged( bool enabled ) {
 
 void Overlay::HandleFocusChanged(bool focus)
 {
-  focus ? show() : hide();
+  focus && Settings::Instance()->OverlayEnabled() ? show() : hide();
 }
