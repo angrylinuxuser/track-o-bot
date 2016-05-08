@@ -191,8 +191,6 @@ Overlay::Overlay( QWidget *parent )
 
   connect( Settings::Instance(), &Settings::OverlayEnabledChanged, this, &Overlay::HandleOverlaySettingChanged );
 
-  LoadCards();
-
   hide();
 
 #ifdef Q_OS_MAC
@@ -227,24 +225,6 @@ void Overlay::CheckForHover() {
   if( mShowPlayerHistory != showPlayerHistory ) {
     mShowPlayerHistory = showPlayerHistory;
     update();
-  }
-}
-
-void Overlay::LoadCards() {
-  QFile file( ":/data/cards.json" );
-  bool opened = file.open( QIODevice::ReadOnly | QIODevice::Text );
-  assert( opened );
-
-  QByteArray jsonData = file.readAll();
-  QJsonParseError error;
-  QJsonArray jsonCards = QJsonDocument::fromJson( jsonData, &error ).array();
-  assert( error.error == QJsonParseError::NoError );
-
-  mCardDB.clear();
-
-  for( QJsonValueRef jsonCardRef : jsonCards ) {
-    QJsonObject jsonCard = jsonCardRef.toObject();
-    mCardDB[ jsonCard["id"].toString() ] = jsonCard.toVariantMap();
   }
 }
 
@@ -322,8 +302,16 @@ void Overlay::Update() {
 #ifdef Q_OS_WIN
     setAttribute( Qt::WA_QuitOnClose ); // otherwise taskkill /IM Track-o-Bot.exe does not work (http://www.qtcentre.org/threads/11713-Qt-Tool?p=62466#post62466)
 #endif
+
+    if( !mCardDB.Loaded() ) {
+      mCardDB.Load();
+    }
   } else {
     hide();
+
+    if( mCardDB.Loaded() ) {
+      mCardDB.Unload();
+    }
   }
 
   update();
@@ -349,12 +337,12 @@ void Overlay::UpdateHistoryFor( Player player, const ::CardHistoryList& list ) {
       continue;
     }
 
-    if( !mCardDB.contains( cardId ) ) {
+    if( !mCardDB.Contains( cardId ) ) {
       DBG( "Card %s not found", qt2cstr( cardId ) );
       continue;
     }
 
-    if( mCardDB[ cardId ][ "type" ] == "hero" ) {
+    if( mCardDB.Type( cardId ) == "hero" ) {
       continue;
     }
 
@@ -364,8 +352,8 @@ void Overlay::UpdateHistoryFor( Player player, const ::CardHistoryList& list ) {
 
     QVariantMap& entry = entries[ cardId ];
     entry[ "count" ] = entry.value( "count", 0 ).toInt() + 1;
-    entry[ "mana" ] = mCardDB[ cardId ][ "mana" ];
-    entry[ "name" ] = mCardDB[ cardId ][ "name" ];
+    entry[ "mana" ] = mCardDB.Mana( cardId );
+    entry[ "name" ] = mCardDB.Name( cardId );
   }
 
   OverlayHistoryList* ref;
