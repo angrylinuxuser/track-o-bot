@@ -76,3 +76,21 @@ void SettingsTab::SelectHearthstoneDirectoryPath() {
     msgBox.exec();
   }
 }
+
+void SettingsTab::SelectWinePrefixPath()
+{
+  QString currentPath = Settings::Instance()->HearthstoneDirectoryPath();
+
+  QString dir = QFileDialog::getExistingDirectory( this, tr("Select wine prefix directory"),
+     currentPath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
+
+  if( !dir.isEmpty() ) {
+    Settings::Instance()->SetWinePrefixPath( dir );
+    LoadSettings();
+
+    QMessageBox msgBox( QMessageBox::Information,
+        "Restart required!",
+        "Please restart Track-o-Bot for changes to take effect!", QMessageBox::Ok, this );
+    msgBox.exec();
+  }
+}

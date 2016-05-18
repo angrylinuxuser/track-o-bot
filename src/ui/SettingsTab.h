@@ -25,5 +25,6 @@ public slots:
   void UpdateOverlayEnabled();
   void SelectHearthstoneDirectoryPath();
   void LoadSettings();
+  void SelectWinePrefixPath();
 };
 
