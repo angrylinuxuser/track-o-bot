@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>486</width>
-    <height>337</height>
+    <width>500</width>
+    <height>468</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>0</width>
-    <height>290</height>
+    <height>390</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,8 @@
 QLabel#debugDescription,
 QLabel#hearthstonePathDescription,
 QLabel#overlayDescription,
-QLabel#updateDescription {
+QLabel#updateDescription ,
+QLabel#winePrefixPathDescription{
 	font-size: 11px;
 	color: #898989;
 }</string>
@@ -51,6 +52,86 @@ QLabel#updateDescription {
       <number>0</number>
      </property>
      <item row="0" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Wine</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="5,1">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="spacing">
+          <number>5</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="winePrefixDirectoryPath">
+           <property name="text">
+            <string>Select path...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="winePrefixPathDescription">
+           <property name="text">
+            <string>This should point to the Wine prefix directory.</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <item>
+          <widget class="QPushButton" name="selectWinePrefixDirectoryPath">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="1">
+      <spacer name="verticalSpacer_9">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>5</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="2" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Game</string>
@@ -60,7 +141,7 @@ QLabel#updateDescription {
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
+     <item row="2" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="5,1">
        <property name="spacing">
         <number>0</number>
@@ -110,34 +191,44 @@ QLabel#updateDescription {
            </property>
           </widget>
          </item>
-         <item>
-          <spacer name="verticalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::MinimumExpanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
         </layout>
        </item>
       </layout>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
+      <spacer name="verticalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>5</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="4" column="1">
       <widget class="QCheckBox" name="checkOverlay">
        <property name="text">
         <string>Enable in-game overlay</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="5" column="1">
+      <widget class="QLabel" name="overlayDescription">
+       <property name="text">
+        <string>Hover over your or your opponent's deck to see which cards were drawn or played.</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
       <spacer name="verticalSpacer_3">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -153,28 +244,28 @@ QLabel#updateDescription {
        </property>
       </spacer>
      </item>
-     <item row="5" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
         <string>System</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="7" column="1">
       <widget class="QCheckBox" name="startAtLogin">
        <property name="text">
         <string>Start at login </string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="8" column="1">
       <widget class="QLabel" name="startDescription">
        <property name="text">
         <string>Open Track-o-Bot when you log in.</string>
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="9" column="1">
       <spacer name="verticalSpacer_2">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -185,26 +276,26 @@ QLabel#updateDescription {
        <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
-         <height>5</height>
+         <height>13</height>
         </size>
        </property>
       </spacer>
      </item>
-     <item row="9" column="1">
+     <item row="10" column="1">
       <widget class="QCheckBox" name="checkForUpdates">
        <property name="text">
         <string>Check for updates</string>
        </property>
       </widget>
      </item>
-     <item row="10" column="1">
+     <item row="11" column="1">
       <widget class="QLabel" name="updateDescription">
        <property name="text">
         <string>Check for updates automatically.</string>
        </property>
       </widget>
      </item>
-     <item row="11" column="1">
+     <item row="12" column="1">
       <widget class="QPushButton" name="checkForUpdatesNowButton">
        <property name="enabled">
         <bool>true</bool>
@@ -229,7 +320,7 @@ QLabel#updateDescription {
        </property>
       </widget>
      </item>
-     <item row="12" column="1">
+     <item row="13" column="1">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -245,21 +336,21 @@ QLabel#updateDescription {
        </property>
       </spacer>
      </item>
-     <item row="13" column="0">
+     <item row="14" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>Debug</string>
        </property>
       </widget>
      </item>
-     <item row="13" column="1">
+     <item row="14" column="1">
       <widget class="QCheckBox" name="checkDebug">
        <property name="text">
         <string>Enable debug mode</string>
        </property>
       </widget>
      </item>
-     <item row="14" column="1">
+     <item row="15" column="1">
       <widget class="QLabel" name="debugDescription">
        <property name="text">
         <string>Debug mode increases verbosity of output in the log tab and sends diagnostic data.</string>
@@ -269,33 +360,7 @@ QLabel#updateDescription {
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QLabel" name="overlayDescription">
-       <property name="text">
-        <string>Hover over your or your opponent's deck to see which cards were drawn or played.</string>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <spacer name="verticalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>5</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="15" column="1">
+     <item row="16" column="1">
       <spacer name="verticalSpacer_6">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
