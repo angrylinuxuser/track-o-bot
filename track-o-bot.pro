@@ -120,8 +120,10 @@ win32 {
 
 unix {
     DEFINES += PLATFORM=\\\"linux\\\"
-    HEADERS += src/LinuxWindowCapture.h
-    SOURCES += src/LinuxWindowCapture.cpp
+    HEADERS += src/LinuxWindowCapture.h \
+               src/WineBottle.h
+    SOURCES += src/LinuxWindowCapture.cpp \
+               src/WineBottle.cpp
     RESOURCES = linux.qrc
     LIBS +=  -lGL -lGLU -lXext -lX11 -lXfixes -L/usr/lib/x86_64-linux-gnu/
     CONFIG += link_pkgconfig debug
