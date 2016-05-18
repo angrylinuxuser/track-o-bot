@@ -17,6 +17,10 @@ DEFINE_SINGLETON_SCOPE( Settings );
 #define KEY_HEARTHSTONE_DIRECTORY_PATH "hearthstoneDirectoryPath"
 #define KEY_OVERLAY_ENABLED "overlayEnabled"
 
+#ifdef Q_OS_LINUX
+#define KEY_WINEPREFIX_PATH "winePrefixPath"
+#endif
+
 Settings::Settings() {
   // Enable overlay by default for new users, but not for existing ones
   if( !QSettings().contains( KEY_OVERLAY_ENABLED ) ) {
@@ -121,4 +125,21 @@ void Settings::SetHearthstoneDirectoryPath( const QString& path ) {
   s.setValue( KEY_HEARTHSTONE_DIRECTORY_PATH, path );
 
   emit HearthstoneDirectoryPathChanged( path );
+}
+
+QString Settings::WinePrefixPath()
+{
+	QString path = QSettings().value( KEY_WINEPREFIX_PATH ).toString();
+	if ( path.isEmpty() ) {
+		path = Hearthstone::Instance()->DetectWinePrefixPath();
+	}
+	return path;
+}
+
+void Settings::SetWinePrefixPath( const QString& path )
+{
+  QSettings s;
+  s.setValue( KEY_WINEPREFIX_PATH, path );
+
+  emit WinePrefixPathChanged( path );
 }

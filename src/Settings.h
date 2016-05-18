@@ -6,7 +6,7 @@ class Settings : public QObject
 {
   Q_OBJECT
 
-  DEFINE_SINGLETON( Settings )
+  DEFINE_SINGLETON( Settings );
 
 signals:
   void AccountChanged( const QString& username, const QString& password );
@@ -16,6 +16,7 @@ signals:
   void DebugEnabledChanged( bool enabled );
   void HearthstoneDirectoryPathChanged( const QString& path );
   void OverlayEnabledChanged( bool enabled );
+  void WinePrefixPathChanged( const QString& path );
 
 public:
   QString AccountUsername() const;
@@ -41,4 +42,7 @@ public:
 
   QString HearthstoneDirectoryPath() const;
   void SetHearthstoneDirectoryPath( const QString& path );
+
+  QString WinePrefixPath();
+  void SetWinePrefixPath( const QString& path );
 };

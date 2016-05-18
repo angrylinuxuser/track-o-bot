@@ -17,6 +17,7 @@ SettingsTab::SettingsTab( QWidget *parent )
   connect( mUI->checkOverlay, &QAbstractButton::clicked, this, &SettingsTab::UpdateOverlayEnabled );
   connect( mUI->selectHearthstoneDirectoryPath, &QAbstractButton::clicked, this, &SettingsTab::SelectHearthstoneDirectoryPath );
 #if defined Q_OS_LINUX
+  connect( mUI->selectWinePrefixDirectoryPath, &QAbstractButton::clicked, this, &SettingsTab::SelectWinePrefixPath );
   mUI->checkForUpdatesNowButton->hide();
   mUI->checkForUpdates->setDisabled(true);
 #else
@@ -58,6 +59,9 @@ void SettingsTab::LoadSettings() {
   mUI->checkDebug->setChecked( settings->DebugEnabled() );
   mUI->checkOverlay->setChecked( settings->OverlayEnabled() );
   mUI->hearthstoneDirectoryPath->setText( settings->HearthstoneDirectoryPath() );
+#ifdef Q_OS_LINUX
+  mUI->winePrefixDirectoryPath->setText( settings->WinePrefixPath() );
+#endif
 }
 
 void SettingsTab::SelectHearthstoneDirectoryPath() {
@@ -68,6 +72,24 @@ void SettingsTab::SelectHearthstoneDirectoryPath() {
 
   if( !dir.isEmpty() ) {
     Settings::Instance()->SetHearthstoneDirectoryPath( dir );
+    LoadSettings();
+
+    QMessageBox msgBox( QMessageBox::Information,
+        "Restart required!",
+        "Please restart Track-o-Bot for changes to take effect!", QMessageBox::Ok, this );
+    msgBox.exec();
+  }
+}
+
+void SettingsTab::SelectWinePrefixPath()
+{
+  QString currentPath = Settings::Instance()->HearthstoneDirectoryPath();
+
+  QString dir = QFileDialog::getExistingDirectory( this, tr("Select wine prefix directory"),
+     currentPath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
+
+  if( !dir.isEmpty() ) {
+    Settings::Instance()->SetWinePrefixPath( dir );
     LoadSettings();
 
     QMessageBox msgBox( QMessageBox::Information,
