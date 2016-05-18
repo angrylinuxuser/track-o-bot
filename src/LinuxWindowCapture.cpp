@@ -1,4 +1,9 @@
+/* QTextStream has to be included before LinuxwindowCapture to avoid
+ * compilation error ( X11/Xlib.h defines Status ) */
+#include <QTextStream>
 #include "LinuxWindowCapture.h"
+#include <QFile>
+#include "Settings.h"
 
 // remove the window title bar which we are not interested in
 #define LINUX_WINDOW_TITLE_BAR_HEIGHT 22
@@ -16,7 +21,30 @@ LinuxWindowCapture::LinuxWindowCapture()
 void LinuxWindowCapture::Update() {
   if( mWinId == 0 ) {
     QString windowName = "Hearthstone";
-    QString locale = ReadAgentAttribute( "selected_locale" );
+
+    static QString locale, path;
+
+    if ( locale.isEmpty() ) {
+      if ( path.isEmpty() )
+        path = Settings::Instance()->HearthstoneDirectoryPath();
+
+			// Agent.db is gone so instad we use Launcher.db to determine locale
+			if ( !path.isEmpty() ) {
+				QFile launcherDB( path.append( "/Launcher.db" ) );
+				if ( launcherDB.exists() )  {
+					if ( launcherDB.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+						QTextStream in( &launcherDB );
+						locale = in.readAll();
+						launcherDB.close();
+					}
+				}
+			}
+		}
+
+    /* this  should be refractored since there are much more locales hs can use.
+      Maybe try to find window by WM_CLASS(STRING) ( it apears that all windows
+      have class Hearthstone.exe no matter which locale is selected */
+
     if( locale == "zhCN" ) {
          windowName = QString::fromWCharArray( L"炉石传说" );
     } else if( locale == "zhTW" ) {
@@ -32,32 +60,6 @@ void LinuxWindowCapture::Update() {
     mWinId = 0;
   }
 }
-
-QString LinuxWindowCapture::ReadAgentAttribute( const char *attributeName ) const {
-    LOG("HS ReadAgentAttribute: %s", attributeName);
-  QString homeLocation = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
-  QString path = homeLocation + "/.Hearthstone/agent.db";
-  if(QFile(path).exists()){
-    LOG("HS Agent DB file (agent.db): FOUND");
-  }
-  else{
-      LOG("HS Agent DB file (agent.db): NOT FOUND");
-  }
-
-  QFile file( path );
-  if( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-    DBG( "Couldn't open %s (%d)", qt2cstr( path ), file.error() );
-    return "";
-  }
-
-  QString contents = file.readAll();
-  QJsonDocument doc = QJsonDocument::fromJson( contents.toUtf8() );
-  QJsonObject root = doc.object();
-
-  QJsonObject hs = root["/game/hs_beta"].toObject()["resource"].toObject()["game"].toObject();
-  return hs[ QString( attributeName ) ].toString();
-}
-
 bool LinuxWindowCapture::WindowFound() {
   return mWinId != 0;
 }

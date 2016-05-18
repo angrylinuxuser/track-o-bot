@@ -22,7 +22,6 @@ private:
   QTimer*  mTimer;
   int      mWinId;
   QRect   mRect;
-  QString ReadAgentAttribute( const char *attributeName ) const;
 
   static int FindWindow( const QString& name );
   static bool WindowRect( int windowId, QRect *rect );
