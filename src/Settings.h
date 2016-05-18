@@ -43,6 +43,6 @@ public:
   QString HearthstoneDirectoryPath() const;
   void SetHearthstoneDirectoryPath( const QString& path );
 
-  QString WinePrefixPath();
+  QString WinePrefixPath() const;
   void SetWinePrefixPath( const QString& path );
 };

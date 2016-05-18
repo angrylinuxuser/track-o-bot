@@ -127,8 +127,7 @@ void Settings::SetHearthstoneDirectoryPath( const QString& path ) {
   emit HearthstoneDirectoryPathChanged( path );
 }
 
-QString Settings::WinePrefixPath()
-{
+QString Settings::WinePrefixPath() const {
 	QString path = QSettings().value( KEY_WINEPREFIX_PATH ).toString();
 	if ( path.isEmpty() ) {
 		path = Hearthstone::Instance()->DetectWinePrefixPath();
@@ -136,8 +135,7 @@ QString Settings::WinePrefixPath()
 	return path;
 }
 
-void Settings::SetWinePrefixPath( const QString& path )
-{
+void Settings::SetWinePrefixPath( const QString& path ) {
   QSettings s;
   s.setValue( KEY_WINEPREFIX_PATH, path );
 

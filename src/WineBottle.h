@@ -22,7 +22,7 @@ public:
    * @brief Returns path to Wine prefix
    * @retun wine prefix
    */
-  const QString& Path();
+  const QString& Path() const;
   /**
    * @brief Translates windows style path to system's path
    *
@@ -35,12 +35,12 @@ public:
    *    then we get /mnt/drive/Hearthstone
    * @param windows style path
    */
-  QString ToSystemPath( const QString& windowsStylePath );
+  QString ToSystemPath( const QString& windowsStylePath ) const;
   /**
    * @brief is WineBottle a valid wine prefix
    * @return true if yes, false if no
    */
-  bool IsValid();
+  bool IsValid() const;
   /**
    * @brief Reads values stored in wine's registry
    * @param key
@@ -65,9 +65,9 @@ private:
    * @param drive
    * @return absolute path to the drive
    */
-  QString DosDevicePath( const QChar& drive );
+  QString DosDevicePath( const QChar& drive ) const;
 
-	QString mWinePrefix;                /**< path to the prefix */
+	const QString mWinePrefix;                /**< path to the prefix */
 	QMap< QChar, QString > mDosDevices; /**< "dosDrives" mapped to their symlinked locations */
 	QSettings* mSystemReg;              /**< HKEY_LOCAL_MACHINE keys */
 	QSettings* mUserReg;                /**<  HKEY_USERS/.Default keys */
