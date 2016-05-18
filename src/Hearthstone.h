@@ -44,6 +44,7 @@ public:
 
   QString LogConfigPath() const;
   QString DetectHearthstonePath() const;
+  QString DetectWinePrefixPath() const;
 
   int Width() const;
   int Height() const;
@@ -53,7 +54,7 @@ signals:
   void GameStopped();
   void GameRequiresRestart();
   void GameWindowChanged( int x, int y, int w, int h );
-  void FocusChanged(bool value);
+  void FocusChanged( bool value );
 
 private slots:
   void Update();

@@ -17,6 +17,8 @@
 #elif defined Q_OS_LINUX
 #include <math.h>
 #include "LinuxWindowCapture.h"
+#include "WineBottle.h"
+#include "Settings.h"
 #endif
 
 DEFINE_SINGLETON_SCOPE( Hearthstone );
@@ -302,3 +304,17 @@ int Hearthstone::Height() const {
   return mCapture->Height();
 }
 
+QString Hearthstone::DetectWinePrefixPath() const
+{
+  static QString winePrefix;
+
+  if ( winePrefix.isEmpty() ) {
+    // default prefix
+    WineBottle bottle( QDir::homePath() + "/.wine" );
+    if ( bottle.isValid() )
+      winePrefix =  bottle.prefix();
+    else
+      ERR( "Could not determine Wine prefix directory" );
+  }
+  return winePrefix;
+}
