@@ -17,6 +17,7 @@ SettingsTab::SettingsTab( QWidget *parent )
   connect( mUI->checkOverlay, &QAbstractButton::clicked, this, &SettingsTab::UpdateOverlayEnabled );
   connect( mUI->selectHearthstoneDirectoryPath, &QAbstractButton::clicked, this, &SettingsTab::SelectHearthstoneDirectoryPath );
 #if defined Q_OS_LINUX
+  connect( mUI->selectWinePrefixDirectoryPath, &QAbstractButton::clicked, this, &SettingsTab::SelectWinePrefixPath );
   mUI->checkForUpdatesNowButton->hide();
   mUI->checkForUpdates->setDisabled(true);
 #else
@@ -58,6 +59,9 @@ void SettingsTab::LoadSettings() {
   mUI->checkDebug->setChecked( settings->DebugEnabled() );
   mUI->checkOverlay->setChecked( settings->OverlayEnabled() );
   mUI->hearthstoneDirectoryPath->setText( settings->HearthstoneDirectoryPath() );
+#ifdef Q_OS_LINUX
+  mUI->winePrefixDirectoryPath->setText( settings->WinePrefixPath() );
+#endif
 }
 
 void SettingsTab::SelectHearthstoneDirectoryPath() {
