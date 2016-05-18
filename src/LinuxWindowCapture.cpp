@@ -14,8 +14,11 @@ LinuxWindowCapture::LinuxWindowCapture()
   mTimer = new QTimer( this );
   connect( mTimer, SIGNAL( timeout() ), this, SLOT( Update() ) );
   mTimer->start( LINUX_UPDATE_WINDOW_DATA_INTERVAL );
-
-  Update();
+  /* can't update here cuz we gona end up in infinite loop
+   this file has to be rewritten if we want to use locale based window finding
+   or we cant use  path = Settings::Instance()->HearthstoneDirectoryPath() here
+   */
+  // Update();
 }
 
 void LinuxWindowCapture::Update() {
