@@ -56,7 +56,9 @@ void Hearthstone::Update() {
 	bool isRunning = mCapture->WindowFound();
 
 	if( isRunning ) {
-		emit FocusChanged(mCapture->Focus());
+	#ifdef Q_OS_LINUX
+		emit FocusChanged( mCapture->Focus() );
+	#endif
 		static int lastLeft = 0, lastTop = 0, lastWidth = 0, lastHeight = 0;
 		if( lastLeft != mCapture->Left() || lastTop != mCapture->Top() ||
 				lastWidth != mCapture->Width() || lastHeight != mCapture->Height() )
