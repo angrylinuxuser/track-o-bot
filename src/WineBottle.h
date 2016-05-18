@@ -47,6 +47,7 @@ public:
    * @return value for a given key or QVariant(invalid) if none is found/error
    */
   QVariant ReadRegistryValue( const QString& key );
+private:
   /**
    * @brief Scans prefix to set up m_dosDevices
    */
