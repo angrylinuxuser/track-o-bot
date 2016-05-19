@@ -25,21 +25,21 @@ WineBottle::~WineBottle() {
 		delete mUserdefReg;
 }
 
-const QString& WineBottle::Path() {
+const QString& WineBottle::Path() const {
 	return mWinePrefix;
 }
 
-QString WineBottle::DosDevicePath(const QChar& drive) {
+QString WineBottle::DosDevicePath( const QChar& drive ) const {
 	return mDosDevices[ drive.toLower() ];
 }
 
-bool WineBottle::IsValid() {
+bool WineBottle::IsValid() const {
 	QStringList matchList;
 	matchList << DOSDEVICES << DRIVE_C
 						<< SYSTEM_REG << USER_REG << USERDEF_REG;
 
 	int count = 0;
-	foreach( const QFileInfo& info, QDir( mWinePrefix ).entryInfoList()  ) {
+	foreach( const QFileInfo& info, QDir( mWinePrefix ).entryInfoList() ) {
 		if ( matchList.contains( info.fileName() ) )
 				 ++count;
 	}
@@ -69,7 +69,7 @@ QVariant WineBottle::ReadRegistryValue( const QString& key ) {
 		return QVariant();
 }
 
-QString WineBottle::ToSystemPath(const QString& windowsStylePath ) {
+QString WineBottle::ToSystemPath( const QString& windowsStylePath ) const {
 
 	QString path = windowsStylePath;
 	QString drivePath = DosDevicePath( windowsStylePath.at( 0 ) );
@@ -102,7 +102,7 @@ void WineBottle::SetupDosDevices() {
 }
 
 // lets blame this on my poor programming skills
-bool WineBottle::ReadWineRegFile(QIODevice& device, QSettings::SettingsMap& map) {
+bool WineBottle::ReadWineRegFile( QIODevice& device, QSettings::SettingsMap& map ) {
 
 	if ( !device.isOpen() )
 		return false;
