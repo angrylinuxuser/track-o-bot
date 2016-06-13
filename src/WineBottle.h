@@ -20,7 +20,7 @@ public:
   ~WineBottle();
   /**
    * @brief Returns path to Wine prefix
-   * @retun wine prefix
+   * @return wine prefix
    */
   const QString& Path() const;
   /**
@@ -31,7 +31,7 @@ public:
    * 		c: -> {$wineprefix}/drive_c
    *    d: -> /
    *
-   *    and the path is d:\\mnt\\drive\Hearthstone
+   *    and the path is d:\\mnt\\drive\\Hearthstone
    *    then we get /mnt/drive/Hearthstone
    * @param windows style path
    */
@@ -67,7 +67,7 @@ private:
    */
   QString DosDevicePath( const QChar& drive ) const;
 
-	const QString mWinePrefix;                /**< path to the prefix */
+	const QString mWinePrefix;          /**< path to the prefix */
 	QMap< QChar, QString > mDosDevices; /**< "dosDrives" mapped to their symlinked locations */
 	QSettings* mSystemReg;              /**< HKEY_LOCAL_MACHINE keys */
 	QSettings* mUserReg;                /**<  HKEY_USERS/.Default keys */

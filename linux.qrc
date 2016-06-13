@@ -21,5 +21,6 @@
         <file>icons/record@2x.png</file>
         <file>icons/switch@2x.png</file>
         <file>i18n/Track-o-Bot_fr_FR.qm</file>
+        <file>i18n/Track-o-Bot_pl_PL.qm</file>
     </qresource>
 </RCC>

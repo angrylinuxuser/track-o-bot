@@ -9,7 +9,8 @@ OBJECTS_DIR = tmp
 MOC_DIR = tmp
 RCC_DIR = tmp
 UI_DIR = tmp
-TRANSLATIONS = i18n/Track-o-Bot_fr_FR.ts
+TRANSLATIONS = i18n/Track-o-Bot_fr_FR.ts \
+               i18n/Track-o-Bot_pl_PL.ts
 
 PRECOMPILED_HEADER = src/Local.h
 HEADERS = src/Local.h \

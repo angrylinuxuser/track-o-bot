@@ -83,7 +83,7 @@ void SettingsTab::SelectHearthstoneDirectoryPath() {
 
 void SettingsTab::SelectWinePrefixPath()
 {
-  QString currentPath = Settings::Instance()->HearthstoneDirectoryPath();
+  QString currentPath = Settings::Instance()->WinePrefixPath();
 
   QString dir = QFileDialog::getExistingDirectory( this, tr("Select wine prefix directory"),
      currentPath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
