@@ -194,7 +194,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/ui/SettingsWidget.ui" line="217"/>
         <source>Enable in-game overlay</source>
-        <translation>Afficher les données complémentaires en jeu</translation>
+        <translation>Afficher suivi des cartes en jeu</translation>
     </message>
     <message>
         <location filename="../src/ui/SettingsWidget.ui" line="250"/>
@@ -244,7 +244,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../src/ui/SettingsWidget.ui" line="224"/>
         <source>Hover over your or your opponent&apos;s deck to see which cards were drawn or played.</source>
-        <translation>Survollez votre pioche ainsi que celle de votre adversaire pour afficher la liste des cartes piochées ou jouées.</translation>
+        <translation>Survolez votre pioche ainsi que celle de votre adversaire pour afficher la liste des cartes piochées ou jouées.</translation>
     </message>
 </context>
 <context>
