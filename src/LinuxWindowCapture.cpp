@@ -1,70 +1,27 @@
-/* QTextStream has to be included before LinuxwindowCapture to avoid
- * compilation error ( X11/Xlib.h defines Status ) */
-#include <QTextStream>
-#include "LinuxWindowCapture.h"
-#include <QFile>
-#include "Settings.h"
+#include <QDebug>
+#include <QGuiApplication>
+#include <QScreen>
 
-// remove the window title bar which we are not interested in
-#define LINUX_WINDOW_TITLE_BAR_HEIGHT 22
+#include "LinuxWindowCapture.h"
+
+#include <xcb/xcb_icccm.h>
+
+#define WM_WINDOW_INSTANCE "Hearthstone.exe"
+#define WM_CLASS "Wine"
 
 LinuxWindowCapture::LinuxWindowCapture()
-  : mWinId( 0 )
+  : mWindow( 0 )
 {
-  mTimer = new QTimer( this );
-  connect( mTimer, SIGNAL( timeout() ), this, SLOT( Update() ) );
-  mTimer->start( LINUX_UPDATE_WINDOW_DATA_INTERVAL );
-  /* can't update here cuz we gona end up in infinite loop
-   this file has to be rewritten if we want to use locale based window finding
-   or we cant use  path = Settings::Instance()->HearthstoneDirectoryPath() here
-   */
-  // Update();
 }
 
-void LinuxWindowCapture::Update() {
-  if( mWinId == 0 ) {
-    QString windowName = "Hearthstone";
-
-    static QString locale, path;
-
-    if ( locale.isEmpty() ) {
-      if ( path.isEmpty() )
-        path = Settings::Instance()->HearthstoneDirectoryPath();
-
-			// Agent.db is gone so instad we use Launcher.db to determine locale
-			if ( !path.isEmpty() ) {
-				QFile launcherDB( path.append( "/Launcher.db" ) );
-				if ( launcherDB.exists() )  {
-					if ( launcherDB.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-						QTextStream in( &launcherDB );
-						locale = in.readAll();
-						launcherDB.close();
-					}
-				}
-			}
-		}
-
-    /* this  should be refractored since there are much more locales hs can use.
-      Maybe try to find window by WM_CLASS(STRING) ( it apears that all windows
-      have class Hearthstone.exe no matter which locale is selected */
-
-    if( locale == "zhCN" ) {
-         windowName = QString::fromWCharArray( L"炉石传说" );
-    } else if( locale == "zhTW" ) {
-         windowName = QString::fromWCharArray( L"《爐石戰記》" );
-    } else if( locale == "koKR") {
-         windowName = QString::fromWCharArray( L"하스스톤" );
-    }
-    mWinId = FindWindow( windowName );
-  }
-
-  if( mWinId && !WindowRect( mWinId, &mRect ) ) {
-    // Window became invalid
-    mWinId = 0;
-  }
-}
 bool LinuxWindowCapture::WindowFound() {
-  return mWinId != 0;
+  if ( mWindow == 0 )
+    mWindow = FindWindow( WM_WINDOW_INSTANCE, WM_CLASS );
+
+  if ( mWindow != 0 && !WindowRect() )
+    mWindow = 0;
+
+  return mWindow != 0;
 }
 
 int LinuxWindowCapture::Width() {
@@ -72,9 +29,7 @@ int LinuxWindowCapture::Width() {
 }
 
 int LinuxWindowCapture::Height() {
-  int height = mRect.height();
-  //return Fullscreen() ? height : std::max< int >( height /*+ LINUX_WINDOW_TITLE_BAR_HEIGHT*/, 0 );
-  return height;
+  return mRect.height();
 }
 
 int LinuxWindowCapture::Left() {
@@ -82,94 +37,128 @@ int LinuxWindowCapture::Left() {
 }
 
 int LinuxWindowCapture::Top() {
-  return mRect.y() /*+ ( Fullscreen() ? 0 : LINUX_WINDOW_TITLE_BAR_HEIGHT )*/;
+  return mRect.y();
 }
 
 QPixmap LinuxWindowCapture::Capture( int x, int y, int w, int h ) {
-    LOG("Capturing window: %d, %d, %d, %d", x,y,h,w);
+    LOG("Capturing window: %d, %d, %d, %d", x, y, h, w );
     QScreen *screen = QGuiApplication::primaryScreen();
-    QPixmap pixmap = screen->grabWindow(mWinId,
+    QPixmap pixmap = screen->grabWindow( mWindow,
                                          x + mRect.x(),
-                                         y + mRect.y() + ( Fullscreen() ? 0 : LINUX_WINDOW_TITLE_BAR_HEIGHT ),
+                                         y + mRect.y(),
                                          w,
                                          h );
   return pixmap;
 }
 
-bool LinuxWindowCapture::Fullscreen() {
-  // this is not the most elegant solution, but I couldn't find a better way
-  return mRect.x() == 0.0f && mRect.y() == 0.0f &&
-    ( mRect.height() & LINUX_WINDOW_TITLE_BAR_HEIGHT ) != LINUX_WINDOW_TITLE_BAR_HEIGHT;
-}
-
-QList<Window> LinuxWindowCapture::listXWindowsRecursive(Display *disp, Window w)
+QList< xcb_window_t > LinuxWindowCapture::listWindowsRecursive( xcb_connection_t* dpy, xcb_window_t& window )
 {
-    Window root;
-    Window parent;
-    Window *children;
-    unsigned int childrenCount;
+  QList< xcb_window_t > windows;
+  xcb_query_tree_reply_t* queryR;
 
-    QList<Window> windows;
-    if(XQueryTree(disp, w, &root, &parent, &children, &childrenCount))
-    {
-        for(unsigned int i = 0; i < childrenCount; ++i)
-        {
-            windows << children[i];
-            windows << listXWindowsRecursive(disp, children[i]);
-        }
-        XFree(children);
+  xcb_query_tree_cookie_t queryC = xcb_query_tree( dpy, window );
+
+  if( ( queryR = xcb_query_tree_reply( dpy, queryC, NULL ) ) ) {
+    xcb_window_t* children = xcb_query_tree_children( queryR );
+
+    for( int c = 0; c < xcb_query_tree_children_length( queryR ); ++c  ) {
+      windows << children[ c ];
+      windows << listWindowsRecursive( dpy, children[ c ]);
     }
-    return windows;
+    free( queryR );
+  }
+  return windows;
 }
 
-int LinuxWindowCapture::FindWindow( const QString& name ) {
-    int winId = 0;
-    Display *disp = XOpenDisplay(NULL);
-    Window rootWin = XDefaultRootWindow(disp);
-    QList<Window> windows = listXWindowsRecursive(disp, rootWin);
+bool LinuxWindowCapture::WindowRect() {
+  if( mWindow == 0 )
+    return false;
 
-    foreach(Window win, windows){
-        char *n;
-        XFetchName(disp, win, &n);
-        QString found = QString::fromLocal8Bit(n);
-        if(found == name){
-            winId = win;
-            //LOG("HS Window found");
-            break;
-        }
-    }
-    XCloseDisplay(disp);
-  return winId;
+  xcb_connection_t* dpy = xcb_connect( NULL, NULL );
+  if ( xcb_connection_has_error( dpy ) )
+    qDebug() << "Can't open display";
+
+  xcb_screen_t* screen = xcb_setup_roots_iterator( xcb_get_setup( dpy ) ).data;
+  if( !screen )
+    qDebug() << "Can't acquire screen";
+
+  xcb_get_geometry_cookie_t geometryC = xcb_get_geometry( dpy, mWindow );
+  xcb_get_geometry_reply_t* geometryR = xcb_get_geometry_reply( dpy, geometryC, NULL );
+
+
+  if( geometryR ) {
+    xcb_translate_coordinates_cookie_t
+                    translateC = xcb_translate_coordinates( dpy,
+                                                            mWindow,
+                                                            screen->root,
+                                                            geometryR->x,
+                                                            geometryR->y );
+    xcb_translate_coordinates_reply_t*
+        translateR = xcb_translate_coordinates_reply( dpy, translateC, NULL );
+
+    mRect.setRect( translateR->dst_x,
+                   translateR->dst_y,
+                   geometryR->width,
+                   geometryR->height );
+
+    free( geometryR );
+    free( translateR );
+    xcb_disconnect( dpy );
+
+    return true;
+  }
+  xcb_disconnect( dpy );
+  return false;
 }
 
-bool LinuxWindowCapture::WindowRect( int windowId, QRect *rect ) {
-    Display *disp = XOpenDisplay(NULL);
-    QList<Window> windows = listXWindowsRecursive(disp, windowId);
+xcb_window_t LinuxWindowCapture::FindWindow( const QString& instanceName, const QString& windowClass ) {
 
-    int numWindows = windows.length();
-    if(numWindows > 0){
-        int x,y;
-        unsigned int h,w,border,depth;
-        Window root;
-        Window child;
-        XGetGeometry(disp, windows.at(0), &root, &x, &y, &w, &h, &border, &depth);
-        XTranslateCoordinates(disp, windows.at(0), root, 0, 0, &x, &y, &child);
-        rect->setRect(x, y, w, h);
-        //LOG("Windows geometry: %d, %d, %d, %d", x,y,h,w);
+  xcb_window_t window = static_cast< xcb_window_t > ( 0 );
+  xcb_connection_t* dpy = xcb_connect( NULL, NULL );
+  if ( xcb_connection_has_error( dpy ) ) { qDebug() << "Can't open display"; }
+
+  xcb_screen_t* screen = xcb_setup_roots_iterator( xcb_get_setup( dpy ) ).data;
+  if( !screen ) { qDebug() << "Can't acquire screen"; }
+
+  xcb_window_t root = screen->root;
+  QList< xcb_window_t > windows = listWindowsRecursive( dpy, root );
+
+  foreach( const xcb_window_t& win, windows ) {
+
+    xcb_icccm_get_wm_class_reply_t wmNameR;
+    xcb_get_property_cookie_t wmClassC = xcb_icccm_get_wm_class( dpy, win );
+    if ( xcb_icccm_get_wm_class_reply( dpy, wmClassC, &wmNameR, NULL ) ) {
+
+      if( !qstrcmp( wmNameR.class_name, windowClass.toStdString().c_str() ) &&
+          !qstrcmp( wmNameR.instance_name, instanceName.toStdString().c_str() ) ) {
+          qDebug() << wmNameR.instance_name;
+          qDebug() << wmNameR.class_name;
+          window = win;
+          break;
+      }
     }
 
-    XCloseDisplay(disp);
-  return numWindows > 0;
+  }
+  xcb_disconnect( dpy );
+  return window;
 }
+
 
 bool LinuxWindowCapture::Focus() {
-  Display *dpy = XOpenDisplay(NULL);
-  Window w;
-  int revert_to;
-  XGetInputFocus(dpy, &w, &revert_to);
-  XCloseDisplay(dpy);
-  if(static_cast<int>(w) == mWinId)
-    return true;
-  else
-    return false;
+  if( mWindow ) {
+    xcb_window_t focusW;
+    xcb_connection_t* dpy = xcb_connect( NULL, NULL );
+    if ( xcb_connection_has_error( dpy ) ) { qDebug() << "Can't open display"; }
+
+    xcb_get_input_focus_cookie_t focusC = xcb_get_input_focus( dpy );
+    xcb_get_input_focus_reply_t* focusR = xcb_get_input_focus_reply( dpy, focusC, NULL );
+    focusW = focusR->focus;
+
+    free( focusR );
+    xcb_disconnect( dpy );
+
+    return focusW == mWindow;
+  }
+  return false;
 }
+
