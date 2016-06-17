@@ -113,7 +113,7 @@ void Trackobot::SetupApplication() {
           QLibraryInfo::location(QLibraryInfo::TranslationsPath));
   installTranslator(&qtTranslator);*/
 
-  QTranslator *translator = new QTranslator();
+  QTranslator *translator = new QTranslator( this );
   QLocale locale = QLocale::system();
   LOG(locale.name().toLatin1());
   if(translator->load(
