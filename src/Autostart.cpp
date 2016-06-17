@@ -69,8 +69,8 @@ bool Autostart::Active()
     #else
         QString homeLocation = QDesktopServices::storageLocation( QDesktopServices::HomeLocation );
     #endif
-    QDir* autostartPath = new QDir(homeLocation + "/.config/autostart/");
-    return autostartPath->exists("track-o-bot.desktop");
+    QDir autostartPath( homeLocation + "/.config/autostart/" );
+    return autostartPath.exists("track-o-bot.desktop");
 #endif
   return false;
 }
