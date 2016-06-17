@@ -115,12 +115,12 @@ void Trackobot::SetupApplication() {
 
   QTranslator *translator = new QTranslator( this );
   QLocale locale = QLocale::system();
-  LOG(locale.name().toLatin1());
-  if(translator->load(
-              QLatin1String("Track-o-Bot_") + locale.name().toLatin1(),
-              QLatin1String(":/i18n"))){
-      LOG("Translation loaded");
-      installTranslator(translator);
+  LOG( locale.name().toLatin1() );
+  if( translator->load(
+              QLatin1String( "Track-o-Bot_" ) + locale.name().toLatin1(),
+              QLatin1String( ":/i18n" ) ) ) {
+      LOG( "Translation loaded" );
+      installTranslator( translator );
   }
 #endif
   setApplicationName( "Track-o-Bot" ); // for proper DataLocation handling
