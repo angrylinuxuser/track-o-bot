@@ -11,21 +11,32 @@ brew install qt5
 brew link qt5 --force
 ```
 
-* Install [Sparkle](http://sparkle.andymatuschak.org/) 
+* Install [Sparkle](http://sparkle.andymatuschak.org/)
  * Move _Sparkle.framework_ to ``/Library/Frameworks``.
 
 ## Windows
 
-* Install [Qt](http://qt-project.org/downloads) 
+* Install [Qt](http://qt-project.org/downloads)
  * I use the Qt libraries 5.5.0 for Windows VS 2012.
-* Install [WinSparkle](https://github.com/vslavik/winsparkle) 
+* Install [WinSparkle](https://github.com/vslavik/winsparkle)
  * Clone the repository and build the library, for example with VS 2012. The precompiled releases are ancient.
 
 ## GNU/Linux
 
 * Install Qt5.5+ with your distribution package manager (apt, etc...)
-* Create folder .Hearthstone in your home directory
-* Track-o-Bot now relies on Power.log, Zone.log, Asset.log and Bod.log, you just have to select your Wine prefix and the Hearthstone's install directory in the ToB configuration window
+
+You also need development packages for:
+
+* qt5-base
+* mesa
+* xcb
+* xcb-icccm
+
+on Ubuntu this should install all required development packages:
+
+```
+sudo apt-get install build-essential qt5-default qtbase5-dev libxcb1-dev libxcb-icccm4-dev
+```
 
 # Build Instructions
 
@@ -50,7 +61,7 @@ qmake PREFIX=/usr
 
 # Contributing
 
-Feel free to submit pull requests, suggest new ideas and discuss issues. Track-o-Bot is about simplicity and usability. Only features which benefit all users will be considered. 
+Feel free to submit pull requests, suggest new ideas and discuss issues. Track-o-Bot is about simplicity and usability. Only features which benefit all users will be considered.
 
 # License
 
