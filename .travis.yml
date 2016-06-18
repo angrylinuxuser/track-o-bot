@@ -1,12 +1,15 @@
+sudo: required
+dist: trusty
+
 before_install:
 #add required repositories
  - sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
- - sudo apt-add-repository -y ppa:beineri/opt-qt551
- - sudo apt-get update -qq
- - sudo apt-get install qt55base qt55tools qt55svg qt55webkit qt55script
+ - sudo apt-add-repository -y ppa:beineri/opt-qt551-trusty
+ - sudo apt-get update -qq -y
+ - sudo apt-get install qt55base qt55tools qt55svg qt55webkit qt55script -y
+ - sudo apt-get install libxcb1-dev libxcb-icccm4-dev -y
 
 language: cpp
 
 script:
  - /opt/qt55/bin/qmake && make && make test
- 

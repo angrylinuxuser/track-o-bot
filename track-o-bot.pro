@@ -126,7 +126,7 @@ unix {
     SOURCES += src/LinuxWindowCapture.cpp \
                src/WineBottle.cpp
     RESOURCES = linux.qrc
-    LIBS +=  -lGL -lGLU -lXext -lX11 -lXfixes -L/usr/lib/x86_64-linux-gnu/
+    LIBS +=  -lGL -lGLU -lxcb -lxcb-icccm -L/usr/lib/x86_64-linux-gnu/
     CONFIG += link_pkgconfig debug
     PKGCONFIG += x11
     CODECFORSRC = UTF-8

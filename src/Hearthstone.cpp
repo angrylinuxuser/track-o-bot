@@ -42,7 +42,11 @@ Hearthstone::Hearthstone()
   // So just check only once in a while
   mTimer = new QTimer( this );
   connect( mTimer, &QTimer::timeout, this, &Hearthstone::Update );
-#ifdef Q_OS_MAC
+#ifdef Q_OS_LINUX
+  connect( this, &Hearthstone::GameStarted, this, &Hearthstone::SetFastUpdates );
+  connect( this, &Hearthstone::GameStopped, this, &Hearthstone::SetSlowUpdates );
+  mTimer->start( 5000 );
+#elif defined Q_OS_MAC
   mTimer->start( 5000 );
 #else
   mTimer->start( 250 );
@@ -273,7 +277,7 @@ QString Hearthstone::DetectHearthstonePath() const {
 			WineBottle bottle( winePrefix );
 			// path is windows style ie c:\\\Program Files\\..
 			QString path =
-                bottle.ReadRegistryValue( "HKEY_LOCAL_MACHINE/Software/Microsoft/Windows/CurrentVersion/Uninstall/Hearthstone/InstallLocation" ).toString();
+								bottle.ReadRegistryValue( "HKEY_LOCAL_MACHINE/Software/Microsoft/Windows/CurrentVersion/Uninstall/Hearthstone/InstallLocation" ).toString();
 
 			if ( !path.isEmpty() ) {
 				// need to translate path to *nix style path
