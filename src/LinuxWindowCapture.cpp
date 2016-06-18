@@ -43,11 +43,7 @@ int LinuxWindowCapture::Top() {
 QPixmap LinuxWindowCapture::Capture( int x, int y, int w, int h ) {
     LOG("Capturing window: %d, %d, %d, %d", x, y, h, w );
     QScreen *screen = QGuiApplication::primaryScreen();
-    QPixmap pixmap = screen->grabWindow( mWindow,
-                                         x + mRect.x(),
-                                         y + mRect.y(),
-                                         w,
-                                         h );
+    QPixmap pixmap = screen->grabWindow( mWindow, x, y, w, h );
   return pixmap;
 }
 
