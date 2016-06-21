@@ -125,7 +125,7 @@ xcb_window_t LinuxWindowCapture::FindWindow( const QString& instanceName, const 
     xcb_get_property_cookie_t wmClassC = xcb_icccm_get_wm_class( dpy, win );
     if ( xcb_icccm_get_wm_class_reply( dpy, wmClassC, &wmNameR, NULL ) ) {
 
-      if( !qstrcmp( wmNameR.class_name, windowClass.toStdString().c_str() ) &&
+      if( !qstrcmp( wmNameR.class_name, windowClass.toStdString().c_str() ) ||
           !qstrcmp( wmNameR.instance_name, instanceName.toStdString().c_str() ) ) {
           qDebug() << wmNameR.instance_name;
           qDebug() << wmNameR.class_name;
