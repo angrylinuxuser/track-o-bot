@@ -7,7 +7,7 @@
 #include <xcb/xcb_icccm.h>
 
 #define WM_WINDOW_INSTANCE "Hearthstone.exe"
-#define WM_CLASS "Wine"
+#define WM_CLASS "Hearthstone.exe"
 
 LinuxWindowCapture::LinuxWindowCapture()
   : mWindow( 0 )
