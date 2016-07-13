@@ -16,6 +16,7 @@
 #include "WinSparkleUpdater.h"
 #elif defined Q_OS_LINUX
 //TODO: update notifier
+#include "WineBottle.h"
 #endif
 
 #include "Hearthstone.h"
@@ -33,6 +34,9 @@ Trackobot::Trackobot( int& argc, char **argv )
     mSingleInstanceServer( NULL )
 {
   SetupApplication();
+#ifdef Q_OS_LINUX
+  Wine->SetPath( Settings::Instance()->WinePrefixPath() );
+#endif
   mWebProfile = new WebProfile( this );
   mResultTracker = new ResultTracker( this );
   mLogTracker = new HearthstoneLogTracker( this );
