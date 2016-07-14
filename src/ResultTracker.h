@@ -25,12 +25,15 @@ private:
 
   ResultQueue           mResultsQueue;
 
+  QString               mRegion;
+
   void ResetResult();
   void UploadResult();
 
   int DetermineRank();
 
 public slots:
+  void HandleHearthstoneStart();
   void HandleMatchStart();
   void HandleMatchEnd();
   void HandleCardsPlayedUpdate( const ::CardHistoryList& cardsPlayed );

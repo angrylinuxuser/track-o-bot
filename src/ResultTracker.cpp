@@ -6,16 +6,27 @@
 ResultTracker::ResultTracker( QObject *parent )
   : QObject( parent ), mSpectating( false ), mCurrentGameMode( MODE_UNKNOWN )
 {
+  connect( Hearthstone::Instance(), &Hearthstone::GameStarted, this, &ResultTracker::HandleHearthstoneStart );
   ResetResult();
 }
 
 ResultTracker::~ResultTracker() {
 }
 
+void ResultTracker::HandleHearthstoneStart() {
+  DBG( "HandleHearthstoneStart" );
+
+  mRegion = Hearthstone::Instance()->DetectRegion();
+  DBG( "Region detected: %s", qt2cstr( mRegion ) );
+
+  ResetResult();
+  // Make sure we reset spectating mode when game is started
+  mSpectating = false;
+}
+
 void ResultTracker::ResetResult() {
   mResult.Reset();
   mRanks.clear();
-  mSpectating = false;
 }
 
 void ResultTracker::HandleOrder( GoingOrder order ) {
@@ -46,6 +57,10 @@ void ResultTracker::HandleMatchStart() {
 void ResultTracker::HandleSpectating( bool nowSpectating ) {
   DBG( "HandleSpectating" );
   mSpectating = nowSpectating;
+
+  if( !nowSpectating ) {
+    ResetResult();
+  }
 }
 
 void ResultTracker::HandleCardsPlayedUpdate( const ::CardHistoryList& cardsPlayed ) {
@@ -64,6 +79,7 @@ void ResultTracker::HandleMatchEnd() {
   mResult.duration = mDurationTimer.elapsed() / 1000;
   mResult.added = QDateTime::currentDateTime();
   mResult.mode = mCurrentGameMode;
+  mResult.region = mRegion;
   UploadResult();
 }
 

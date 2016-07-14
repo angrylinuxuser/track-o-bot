@@ -61,11 +61,26 @@ HearthstoneLogTracker::HearthstoneLogTracker( QObject *parent )
   RegisterHearthstoneLogLineHandler( "Zone", "ZoneChangeList.ProcessChanges()", "local=(?<local>\\w+) (?<entity>\\[.+?\\]) zone from (?<from>.*) ->\\s?(?<to>.*)", &HearthstoneLogTracker::OnZoneChange );
   RegisterHearthstoneLogLineHandler( "Power", "PowerTaskList.DebugPrintPower()", "TAG_CHANGE Entity=(?<entity>.+?) tag=(?<tag>\\w+) value=(?<value>\\w+)", &HearthstoneLogTracker::OnTagChange );
   RegisterHearthstoneLogLineHandler( "Power", "PowerTaskList.DebugPrintPower()", "CREATE_GAME", &HearthstoneLogTracker::OnCreateGame );
-  RegisterHearthstoneLogLineHandler( "Power", "PowerTaskList.DebugPrintPower()", "ACTION_START BlockType=(?<blockType>.+?) Entity=(?<entity>.+?) EffectCardId=", &HearthstoneLogTracker::OnActionStart );
+  RegisterHearthstoneLogLineHandler( "Power", "PowerTaskList.DebugPrintPower()", "BLOCK_START BlockType=(?<blockType>.+?) Entity=(?<entity>.+?) EffectCardId=", &HearthstoneLogTracker::OnActionStart );
+  RegisterHearthstoneLogLineHandler( "Power", "GameState.DebugPrintEntityChoices()", "id=\\d+ Player=(?<name>.+?) TaskList=", &HearthstoneLogTracker::OnPlayerName );
+  RegisterHearthstoneLogLineHandler( "Power", "GameState.DebugPrintEntityChoices()", "type=INVALID zone=DECK zonePos=0 player=(?<id>\\d+)", &HearthstoneLogTracker::OnPlayerId );
   RegisterHearthstoneLogLineHandler( "Bob", "", "legend rank (?<rank>\\w+)", &HearthstoneLogTracker::OnLegendRank );
   RegisterHearthstoneLogLineHandler( "Asset", "", "name=rank_window", &HearthstoneLogTracker::OnRanked );
   RegisterHearthstoneLogLineHandler( "Power", "", "Start Spectator Game", &HearthstoneLogTracker::OnStartSpectating );
   RegisterHearthstoneLogLineHandler( "Power", "", "End Spectator Mode", &HearthstoneLogTracker::OnStopSpectating ); // MODE!
+}
+
+
+void HearthstoneLogTracker::OnPlayerName( const QVariantMap& args ) {
+  mCurrentPlayerName = args[ "name" ].toString();
+  DBG( "OnPlayerName %s", qt2cstr( mCurrentPlayerName ) );
+}
+
+void HearthstoneLogTracker::OnPlayerId( const QVariantMap& args ) {
+  int id = args[ "id" ].toInt();
+
+  DBG( "OnPlayerId %d. Set %s to id %d", id, qt2cstr( mCurrentPlayerName ), id );
+  mPlayerIdsByName[ mCurrentPlayerName ] = id;
 }
 
 void HearthstoneLogTracker::OnActionStart( const QVariantMap& args ) {
@@ -181,18 +196,11 @@ void HearthstoneLogTracker::OnTagChange( const QVariantMap& args ) {
 
   DBG( "OnTagChange %s = %s", qt2cstr( tag ), qt2cstr( value ) );
 
-  if( tag == "PLAYER_ID" ) {
-    QString entityName = args[ "entity" ].toString();
-    int entityId = value.toInt();
-    mEntityIdByName[ entityName ] = entityId;
-    DBG( "Player Entity %s = %d", qt2cstr( entityName ), entityId );
-  }
-
   if( tag == "PLAYSTATE" && ( value == "WON" || value == "LOST" || value == "TIED" ) ) {
     QString entityName = args[ "entity" ].toString();
     QString outcome = value;
 
-    int entityId = mEntityIdByName.value( entityName, -1 );
+    int entityId = mPlayerIdsByName.value( entityName, -1 );
     if( entityId == -1 ) {
       LOG( "Could not resolve entity %s to determine outcome", qt2cstr( entityName ) );
     } else {
@@ -231,7 +239,7 @@ void HearthstoneLogTracker::OnZoneChange( const QVariantMap& args ) {
   /*
    * The Coin
    */
-  if( entity[ "zonePos" ] == 5 && from.isEmpty() && CurrentTurn() == 0 ) {
+  if( entity[ "zonePos" ] == 5 && from.isEmpty() && CurrentTurn() <= 1 ) {
     if( to.contains( "FRIENDLY HAND" ) ) {
       // I go second because I get the coin
       emit HandleOrder( ORDER_SECOND );
@@ -342,7 +350,7 @@ void HearthstoneLogTracker::Reset() {
 
   mTurn = 0;
   mLegendTracked = false;
-  mEntityIdByName.clear();
+  mPlayerIdsByName.clear();
   mInitialDeckObjectIds.clear();
 
   mCardsPlayed.clear();

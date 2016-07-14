@@ -56,7 +56,7 @@ public slots:
   void HandleCardsDrawnUpdate( const ::CardHistoryList& cardsDrawn );
 
   void HandleOverlaySettingChanged( bool enabled );
-  void HandleFocusChanged( bool focus );
+  void HandleGameFocusChanged( bool focus );
 
 };
 

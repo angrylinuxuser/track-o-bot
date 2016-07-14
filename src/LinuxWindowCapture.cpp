@@ -140,7 +140,7 @@ xcb_window_t LinuxWindowCapture::FindWindow( const QString& instanceName, const 
 }
 
 
-bool LinuxWindowCapture::Focus() {
+bool LinuxWindowCapture::HasFocus() {
   if( mWindow ) {
     xcb_window_t focusW;
     xcb_connection_t* dpy = xcb_connect( NULL, NULL );
