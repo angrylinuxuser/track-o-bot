@@ -8,6 +8,7 @@
 You also need development packages for:
 
 * qt5-base
+* qt5-x11extras
 * mesa
 * xcb
 * xcb-icccm
@@ -15,7 +16,7 @@ You also need development packages for:
 on Ubuntu this should install all required development packages:
 
 ```
-sudo apt-get install build-essential qt5-default qtbase5-dev libxcb1-dev libxcb-icccm4-dev
+sudo apt-get install build-essential qt5-default qtbase5-dev libqt5x11extras5-dev libxcb1-dev libxcb-icccm4-dev
 ```
 
 ## Build Instructions

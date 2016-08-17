@@ -126,9 +126,9 @@ unix {
     SOURCES += src/LinuxWindowCapture.cpp \
                src/WineBottle.cpp
     RESOURCES = linux.qrc
-    LIBS +=  -lGL -lGLU -lxcb -lxcb-icccm -L/usr/lib/x86_64-linux-gnu/
+    #LIBS +=  -lGL -lGLU -lxcb -lxcb-icccm -L/usr/lib/x86_64-linux-gnu/
     CONFIG += link_pkgconfig debug
-    PKGCONFIG += x11
+    PKGCONFIG += xcb xcb-icccm
     CODECFORSRC = UTF-8
     isEmpty(PREFIX){
         PREFIX = /usr/local
@@ -139,6 +139,7 @@ unix {
     } else {
         QT += gui
     }
+    QT += x11extras
 
     desktop.path = $$PREFIX/share/applications
     desktop.files += \

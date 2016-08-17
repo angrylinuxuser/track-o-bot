@@ -6,7 +6,7 @@ before_install:
  - sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
  - sudo apt-add-repository -y ppa:beineri/opt-qt551-trusty
  - sudo apt-get update -qq -y
- - sudo apt-get install qt55base qt55tools qt55svg qt55webkit qt55script -y
+ - sudo apt-get install qt55base qt55tools qt55svg qt55webkit qt55script qt55x11extras -y
  - sudo apt-get install libxcb1-dev libxcb-icccm4-dev -y
 
 language: cpp

@@ -13,7 +13,7 @@ private:
   QRect   mRect;
 
   xcb_window_t FindWindow( const QString& wmName, const QString& wmClass );
-  QList< xcb_window_t > listWindowsRecursive( xcb_connection_t* dpy, xcb_window_t& window );
+  QList< xcb_window_t > listWindowsRecursive( const xcb_window_t& window );
   bool WindowRect();
 
 public:
