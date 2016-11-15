@@ -81,24 +81,38 @@ bool LinuxWindowCapture::WindowRect() {
   xcb_get_geometry_cookie_t geometryC = xcb_get_geometry( dpy, mWindow );
   xcb_get_geometry_reply_t* geometryR = xcb_get_geometry_reply( dpy, geometryC, NULL );
 
-
   if( geometryR ) {
-    xcb_translate_coordinates_cookie_t
-                    translateC = xcb_translate_coordinates( dpy,
-                                                            mWindow,
-                                                            screen->root,
-                                                            geometryR->x,
-                                                            geometryR->y );
-    xcb_translate_coordinates_reply_t*
-        translateR = xcb_translate_coordinates_reply( dpy, translateC, NULL );
+    xcb_query_tree_reply_t *tree = xcb_query_tree_reply ( dpy,
+                                                          xcb_query_tree ( dpy, mWindow ),
+                                                          NULL );
 
-    mRect.setRect( translateR->dst_x,
-                   translateR->dst_y,
-                   geometryR->width,
-                   geometryR->height );
+    if( tree->parent != screen->root ){
+      xcb_translate_coordinates_cookie_t
+                      translateC = xcb_translate_coordinates( dpy,
+                                                              mWindow,
+                                                              screen->root,
+                                                              geometryR->x,
+                                                              geometryR->y );
+      xcb_translate_coordinates_reply_t*
+          translateR = xcb_translate_coordinates_reply( dpy, translateC, NULL );
 
-    free( geometryR );
-    free( translateR );
+      mRect.setRect( translateR->dst_x,                   
+                     translateR->dst_y,
+                     geometryR->width,
+                     geometryR->height );
+
+      free( translateR );
+    }
+    else {
+      // if the parent is the screen then we can just use the coordinates directly
+      mRect.setRect( geometryR->x,                   
+                     geometryR->y,
+                     geometryR->width,
+                     geometryR->height );
+
+    }
+    free( geometryR );      
+    free( tree );
     xcb_disconnect( dpy );
 
     return true;
