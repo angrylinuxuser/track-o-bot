@@ -283,16 +283,6 @@ void Overlay::HandleGameWindowChanged( int x, int y, int w, int h ) {
   mPlayerDeckRect = QRect( w / 2 + 0.440 * minWidth, h * 0.510, 0.05 * minWidth, h * 0.170 );
   mOpponentDeckRect = mPlayerDeckRect.translated( -0.005 * minWidth, -0.275 * h );
 
-#ifdef Q_OS_LINUX
-  int maskWidth = w - mPlayerDeckRect.x();
-  if(maskWidth < 200){
-      maskWidth = 200;
-  }
-  QRect maskRect = QRect(mPlayerDeckRect.x(), 0, w - mPlayerDeckRect.x(), h - 100);
-  QRegion region = QRegion(maskRect, QRegion::Rectangle);
-  setMask(region);
-#endif
-
   Update();
 }
 
