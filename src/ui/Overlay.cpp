@@ -15,11 +15,6 @@
 #include <QJsonDocument>
 #include <QFile>
 #include <QMouseEvent>
-#include "../LinuxWindowCapture.h"
-#include <X11/Xlib.h>
-
-#include <X11/extensions/Xfixes.h>
-#include <X11/extensions/shape.h>
 
 #define CHECK_FOR_OVERLAY_HOVER_INTERVAL_MS 100
 
