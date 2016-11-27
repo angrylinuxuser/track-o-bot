@@ -99,6 +99,9 @@ bool LinuxWindowCapture::WindowRect() {
     mRect.setTopLeft( QPoint( translateR->dst_x, translateR->dst_y ) );
     free( translateR );
   }
+  else{
+    free(treeR);
+  }
   return true;
 }
 
