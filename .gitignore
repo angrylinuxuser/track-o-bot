@@ -12,6 +12,7 @@ Makefile.*
 *.autosave
 *.o
 *.user
+*.user.*
 /scenes/*
 /debug/
 /release/

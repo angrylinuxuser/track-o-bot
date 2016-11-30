@@ -7,17 +7,40 @@
 #include <QList>
 #include <QMap>
 
+#define REG_NONE		0	/* no type */
+#define REG_SZ			1	/* string type (ASCII) */
+#define REG_EXPAND_SZ		2	/* string, includes %ENVVAR% (expanded by caller) (ASCII) */
+#define REG_BINARY		3	/* binary format, callerspecific */
+/* YES, REG_DWORD == REG_DWORD_LITTLE_ENDIAN */
+#define REG_DWORD		4	/* DWORD in little endian format */
+#define REG_DWORD_LITTLE_ENDIAN	4	/* DWORD in little endian format */
+#define REG_DWORD_BIG_ENDIAN	5	/* DWORD in big endian format  */
+#define REG_LINK		6	/* symbolic link (UNICODE) */
+#define REG_MULTI_SZ		7	/* multiple strings, delimited by \0, terminated by \0\0 (ASCII) */
+#define REG_RESOURCE_LIST	8	/* resource list? huh? */
+#define REG_FULL_RESOURCE_DESCRIPTOR	9	/* full resource descriptor? huh? */
+#define REG_RESOURCE_REQUIREMENTS_LIST	10
+#define REG_QWORD		11	/* QWORD in little endian format */
+#define REG_QWORD_LITTLE_ENDIAN	11	/* QWORD in little endian format */
+
+#define MAX_REG_FILES 3
+#define SYSTEM_REG "system.reg"
+#define SYSTEM_REG_ID 0
+#define USER_REG "user.reg"
+#define USER_REG_ID 1
+#define USERDEF_REG "userdef.reg"
+#define USERDEF_REG_ID 2
+
+class QTextStream;
+
 class WineBottle {
+  DEFINE_SINGLETON( WineBottle )
 public:
   /**
-   * @brief Wine prefix
-   * @param prefix is a path to the directory containing wine's prefix
+   * @brief Sets wine prefix path
+   * @param QString
    */
-  WineBottle( const QString& Path );
-  /**
-   * @brief destructor
-   */
-  ~WineBottle();
+  void SetPath( const QString& path );
   /**
    * @brief Returns path to Wine prefix
    * @return wine prefix
@@ -34,6 +57,7 @@ public:
    *    and the path is d:\\mnt\\drive\\Hearthstone
    *    then we get /mnt/drive/Hearthstone
    * @param windows style path
+   * @reurns translated path or empty string if error
    */
   QString ToSystemPath( const QString& windowsStylePath ) const;
   /**
@@ -47,15 +71,28 @@ public:
    * @return value for a given key or QVariant(invalid) if none is found/error
    */
   QVariant ReadRegistryValue( const QString& key );
+  /**
+   * @brief Resets
+   */
+  void ResetRegFile(int id);
 private:
   /**
-   * @brief Scans prefix to set up m_dosDevices
+   * @brief Scans prefix to set up mDosDevices
    */
   void SetupDosDevices();
   /**
    * @brief Custom format readder ( *.reg ) for QSettings
    */
   static bool ReadWineRegFile( QIODevice& device, QSettings::SettingsMap& map );
+  /**
+   * @brief WriteWineRegFile
+   * @param device
+   * @param map
+   * @return 0
+   *
+   * Dummy method.
+   */
+  static bool WriteWineRegFile( QIODevice& device, const QSettings::SettingsMap& map );
   /**
    * @brief Returns absolute path to the Wine's "drive"
    *
@@ -66,13 +103,13 @@ private:
    * @return absolute path to the drive
    */
   QString DosDevicePath( const QChar& drive ) const;
-
-	const QString mWinePrefix;          /**< path to the prefix */
-	QMap< QChar, QString > mDosDevices; /**< "dosDrives" mapped to their symlinked locations */
-	QSettings* mSystemReg;              /**< HKEY_LOCAL_MACHINE keys */
-	QSettings* mUserReg;                /**<  HKEY_USERS/.Default keys */
-	QSettings* mUserdefReg;             /**< HKEY_CURRENT_USER keys */
-	const QSettings::Format mRegFormat; /**< custom registry format */
+  QString mWinePrefix;                	/**< path to the prefix */
+  QMap< QChar, QString > mDosDevices; 	/**< "dosDrives" mapped to their symlinked locations */
+  QSettings* mRegFiles[ MAX_REG_FILES ];/**< array of settings from system.reg, user.reg, userdef.reg */
+  const QSettings::Format mRegFormat; 	/**< custom registry format */
+  bool mIsValid;                      	/**< is wine prefix a valid one */
 };
+
+#define Wine WineBottle::Instance()
 
 #endif // WINEBOTTLE_H

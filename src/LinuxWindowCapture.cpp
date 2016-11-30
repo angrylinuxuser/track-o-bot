@@ -53,7 +53,7 @@ QList< xcb_window_t > LinuxWindowCapture::listWindowsRecursive( const xcb_window
 
   xcb_query_tree_cookie_t queryC = xcb_query_tree( xcbConn, window );
 
-  if( ( queryR = xcb_query_tree_reply( QX11Info::connection(), queryC, NULL ) ) ) {
+  if( ( queryR = xcb_query_tree_reply( xcbConn, queryC, NULL ) ) ) {
     xcb_window_t* children = xcb_query_tree_children( queryR );
 
     for( int c = 0; c < xcb_query_tree_children_length( queryR ); ++c  ) {

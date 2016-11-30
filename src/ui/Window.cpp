@@ -136,6 +136,12 @@ void Window::CreateActions() {
 
   mGameClientRestartRequiredAction = new QAction( tr("Please restart Hearthstone!" ), this );
   mGameClientRestartRequiredAction->setEnabled( false );
+
+#ifdef Q_OS_LINUX
+  mOpenProfileAction->setIcon( QIcon::fromTheme( "applications-internet" ) );
+  mShowAction->setIcon( QIcon::fromTheme( "preferences-system" ) );
+  mQuitAction->setIcon( QIcon::fromTheme( "application-exit" ) );
+#endif
 }
 
 void Window::CreateTrayIcon() {
