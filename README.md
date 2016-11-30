@@ -2,7 +2,6 @@
 
 ## Build Dependencies
 
-
 * Install Qt5.5+ with your distribution package manager (apt, etc...)
 
 You also need development packages for:
