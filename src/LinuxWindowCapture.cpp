@@ -13,10 +13,10 @@ LinuxWindowCapture::LinuxWindowCapture()
 }
 
 bool LinuxWindowCapture::WindowFound() {
-  if ( mWindow == 0 )
+  if ( !mWindow )
     mWindow = FindWindow( WM_WINDOW_INSTANCE, WM_CLASS );
 
-  if ( mWindow != 0 && !WindowRect() )
+  if ( mWindow && !WindowRect() )
     mWindow = 0;
 
   return mWindow != 0;
@@ -45,22 +45,18 @@ QPixmap LinuxWindowCapture::Capture( int x, int y, int w, int h ) {
   return pixmap;
 }
 
-QList< xcb_window_t > LinuxWindowCapture::listWindowsRecursive( const xcb_window_t& window )
-{
+QList< xcb_window_t > LinuxWindowCapture::listWindowsRecursive( const xcb_window_t& window ) {
   QList< xcb_window_t > windows;
-  xcb_query_tree_reply_t* queryR;
   xcb_connection_t* xcbConn = QX11Info::connection();
-
   xcb_query_tree_cookie_t queryC = xcb_query_tree( xcbConn, window );
+  CScopedPointer< xcb_query_tree_reply_t > queryR( xcb_query_tree_reply( xcbConn, queryC, NULL ) );
 
-  if( ( queryR = xcb_query_tree_reply( xcbConn, queryC, NULL ) ) ) {
-    xcb_window_t* children = xcb_query_tree_children( queryR );
-
-    for( int c = 0; c < xcb_query_tree_children_length( queryR ); ++c  ) {
+  if ( queryR ) {
+    xcb_window_t* children = xcb_query_tree_children( queryR.data() );
+    for( auto c = 0; c < xcb_query_tree_children_length( queryR.data() ); ++c ) {
       windows << children[ c ];
-      windows << listWindowsRecursive( children[ c ]);
+      windows << listWindowsRecursive( children[ c ] );
     }
-    free( queryR );
   }
   return windows;
 }
@@ -72,45 +68,37 @@ bool LinuxWindowCapture::WindowRect() {
   xcb_connection_t* xcbConn = QX11Info::connection();
 
   xcb_get_geometry_cookie_t geometryC = xcb_get_geometry( xcbConn, mWindow );
-  xcb_get_geometry_reply_t* geometryR = xcb_get_geometry_reply( xcbConn, geometryC, NULL );
-
+  CScopedPointer< xcb_get_geometry_reply_t > geometryR( xcb_get_geometry_reply( xcbConn, geometryC, NULL ) );
   if( !geometryR ) return false;
 
   // assume the parent window is the screen then we can just use the coordinates directly
-  mRect.setRect( geometryR->x, geometryR->y, geometryR->width, geometryR->height );
-  free( geometryR );
+  int x = geometryR->x;
+  int y = geometryR->y;
 
-  xcb_query_tree_reply_t* treeR = xcb_query_tree_reply( xcbConn, xcb_query_tree( xcbConn, mWindow ), NULL );
+  CScopedPointer< xcb_query_tree_reply_t > treeR( xcb_query_tree_reply( xcbConn, xcb_query_tree( xcbConn, mWindow ), NULL ) );
   if ( !treeR ) return false;
 
   // if the parent isn't screen translate coords
   if ( treeR->parent != QX11Info::appRootWindow() ) {
-    free( treeR );
     xcb_translate_coordinates_cookie_t
-                    translateC = xcb_translate_coordinates( xcbConn,
-                                                            mWindow,
-                                                            QX11Info::appRootWindow(),
-                                                            mRect.x(),
-                                                            mRect.y() );
-    xcb_translate_coordinates_reply_t*
-                    translateR = xcb_translate_coordinates_reply( xcbConn, translateC, NULL );
+                    translateC = xcb_translate_coordinates( xcbConn, mWindow,
+                                                            QX11Info::appRootWindow(), x, y );
+    CScopedPointer< xcb_translate_coordinates_reply_t >
+                    translateR( xcb_translate_coordinates_reply( xcbConn, translateC, NULL ) );
     if ( !translateR ) return false;
 
-    mRect.setTopLeft( QPoint( translateR->dst_x, translateR->dst_y ) );
-    free( translateR );
+    x = translateR->dst_x;
+    y = translateR->dst_y;
   }
-  else{
-    free(treeR);
-  }
+  mRect.setRect( x, y, geometryR->width, geometryR->height );
   return true;
 }
 
 xcb_window_t LinuxWindowCapture::FindWindow( const QString& instanceName, const QString& windowClass ) {
-
   xcb_window_t winID = static_cast< xcb_window_t > ( 0 );
   QList< xcb_window_t > windows = listWindowsRecursive( static_cast< xcb_window_t >( QX11Info::appRootWindow() ) );
-
   xcb_connection_t* xcbConn = QX11Info::connection();
+
   foreach( const xcb_window_t& win, windows ) {
     xcb_icccm_get_wm_class_reply_t wmNameR;
     xcb_get_property_cookie_t wmClassC = xcb_icccm_get_wm_class( xcbConn, win );
@@ -126,18 +114,13 @@ xcb_window_t LinuxWindowCapture::FindWindow( const QString& instanceName, const 
   return winID;
 }
 
-
 bool LinuxWindowCapture::HasFocus() {
-  if( mWindow ) {
-    xcb_window_t focusW;
-    xcb_connection_t* xcbConn = QX11Info::connection();
-    xcb_get_input_focus_cookie_t focusC = xcb_get_input_focus( xcbConn );
-    xcb_get_input_focus_reply_t* focusR = xcb_get_input_focus_reply( xcbConn, focusC, NULL );
-    focusW = focusR->focus;
+  if( !mWindow )
+    return false;
 
-    free( focusR );
-    return focusW == mWindow;
-  }
-  return false;
+  xcb_connection_t* xcbConn = QX11Info::connection();
+  xcb_get_input_focus_cookie_t focusC = xcb_get_input_focus( xcbConn );
+  CScopedPointer < xcb_get_input_focus_reply_t > focusR( xcb_get_input_focus_reply( xcbConn, focusC, NULL ) );
+
+  return focusR->focus == mWindow;
 }
-
