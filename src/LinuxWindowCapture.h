@@ -3,6 +3,7 @@
 
 #include "WindowCapture.h"
 #include <xcb/xcb.h>
+#include <QScopedPointer>
 
 class LinuxWindowCapture : public QObject, public WindowCapture
 {
@@ -29,5 +30,7 @@ public:
   QPixmap Capture( int x, int y, int w, int h );
   bool HasFocus();
 };
+
+template< typename T > using CScopedPointer = QScopedPointer< T, QScopedPointerPodDeleter >;
 
 #endif // LINUXWINDOWCAPTURE_H
