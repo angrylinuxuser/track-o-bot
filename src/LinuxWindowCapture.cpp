@@ -8,7 +8,7 @@
 #define WM_CLASS "Hearthstone.exe"
 
 LinuxWindowCapture::LinuxWindowCapture()
-  : mWindow( 0 )
+  : mWindow( XCB_WINDOW_NONE )
 {
 }
 
@@ -17,9 +17,9 @@ bool LinuxWindowCapture::WindowFound() {
     mWindow = FindWindow( WM_WINDOW_INSTANCE, WM_CLASS );
 
   if ( mWindow && !WindowRect() )
-    mWindow = 0;
+    mWindow = XCB_WINDOW_NONE;
 
-  return mWindow != 0;
+  return mWindow != XCB_WINDOW_NONE;
 }
 
 int LinuxWindowCapture::Width() {
@@ -49,7 +49,7 @@ QList< xcb_window_t > LinuxWindowCapture::listWindowsRecursive( const xcb_window
   QList< xcb_window_t > windows;
   xcb_connection_t* xcbConn = QX11Info::connection();
   xcb_query_tree_cookie_t queryC = xcb_query_tree( xcbConn, window );
-  CScopedPointer< xcb_query_tree_reply_t > queryR( xcb_query_tree_reply( xcbConn, queryC, NULL ) );
+  CScopedPointer< xcb_query_tree_reply_t > queryR( xcb_query_tree_reply( xcbConn, queryC, nullptr ) );
 
   if ( queryR ) {
     xcb_window_t* children = xcb_query_tree_children( queryR.data() );
@@ -62,20 +62,20 @@ QList< xcb_window_t > LinuxWindowCapture::listWindowsRecursive( const xcb_window
 }
 
 bool LinuxWindowCapture::WindowRect() {
-  if( mWindow == 0 )
+  if( !mWindow )
     return false;
 
   xcb_connection_t* xcbConn = QX11Info::connection();
 
   xcb_get_geometry_cookie_t geometryC = xcb_get_geometry( xcbConn, mWindow );
-  CScopedPointer< xcb_get_geometry_reply_t > geometryR( xcb_get_geometry_reply( xcbConn, geometryC, NULL ) );
+  CScopedPointer< xcb_get_geometry_reply_t > geometryR( xcb_get_geometry_reply( xcbConn, geometryC, nullptr ) );
   if( !geometryR ) return false;
 
   // assume the parent window is the screen then we can just use the coordinates directly
   int x = geometryR->x;
   int y = geometryR->y;
 
-  CScopedPointer< xcb_query_tree_reply_t > treeR( xcb_query_tree_reply( xcbConn, xcb_query_tree( xcbConn, mWindow ), NULL ) );
+  CScopedPointer< xcb_query_tree_reply_t > treeR( xcb_query_tree_reply( xcbConn, xcb_query_tree( xcbConn, mWindow ), nullptr ) );
   if ( !treeR ) return false;
 
   // if the parent isn't screen translate coords
@@ -84,7 +84,7 @@ bool LinuxWindowCapture::WindowRect() {
                     translateC = xcb_translate_coordinates( xcbConn, mWindow,
                                                             QX11Info::appRootWindow(), x, y );
     CScopedPointer< xcb_translate_coordinates_reply_t >
-                    translateR( xcb_translate_coordinates_reply( xcbConn, translateC, NULL ) );
+                    translateR( xcb_translate_coordinates_reply( xcbConn, translateC, nullptr ) );
     if ( !translateR ) return false;
 
     x = translateR->dst_x;
@@ -95,14 +95,14 @@ bool LinuxWindowCapture::WindowRect() {
 }
 
 xcb_window_t LinuxWindowCapture::FindWindow( const QString& instanceName, const QString& windowClass ) {
-  xcb_window_t winID = static_cast< xcb_window_t > ( 0 );
-  QList< xcb_window_t > windows = listWindowsRecursive( static_cast< xcb_window_t >( QX11Info::appRootWindow() ) );
+  xcb_window_t winID = XCB_WINDOW_NONE;
+  QList< xcb_window_t > windows = listWindowsRecursive( QX11Info::appRootWindow() );
   xcb_connection_t* xcbConn = QX11Info::connection();
 
   foreach( const xcb_window_t& win, windows ) {
     xcb_icccm_get_wm_class_reply_t wmNameR;
     xcb_get_property_cookie_t wmClassC = xcb_icccm_get_wm_class( xcbConn, win );
-    if ( xcb_icccm_get_wm_class_reply( xcbConn, wmClassC, &wmNameR, NULL ) ) {
+    if ( xcb_icccm_get_wm_class_reply( xcbConn, wmClassC, &wmNameR, nullptr ) ) {
 
       if( !qstrcmp( wmNameR.class_name, windowClass.toStdString().c_str() ) ||
           !qstrcmp( wmNameR.instance_name, instanceName.toStdString().c_str() ) ) {
@@ -120,7 +120,7 @@ bool LinuxWindowCapture::HasFocus() {
 
   xcb_connection_t* xcbConn = QX11Info::connection();
   xcb_get_input_focus_cookie_t focusC = xcb_get_input_focus( xcbConn );
-  CScopedPointer < xcb_get_input_focus_reply_t > focusR( xcb_get_input_focus_reply( xcbConn, focusC, NULL ) );
+  CScopedPointer < xcb_get_input_focus_reply_t > focusR( xcb_get_input_focus_reply( xcbConn, focusC, nullptr ) );
 
   return focusR->focus == mWindow;
 }
