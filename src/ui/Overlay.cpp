@@ -252,6 +252,9 @@ void Overlay::paintEvent( QPaintEvent* ) {
 #ifdef Q_OS_WIN
   float rowFontSize = 9;
   float titleFontSize = 9;
+#elif defined Q_OS_LINUX
+  float rowFontSize = QFont().pointSizeF();
+  float titleFontSize = rowFontSize;
 #else
   float rowFontSize = 12;
   float titleFontSize = 12;
