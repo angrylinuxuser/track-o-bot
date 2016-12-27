@@ -252,6 +252,9 @@ void Overlay::paintEvent( QPaintEvent* ) {
 #ifdef Q_OS_WIN
   float rowFontSize = 9;
   float titleFontSize = 9;
+#elif defined Q_OS_LINUX
+  float rowFontSize = QFont().pointSizeF();
+  float titleFontSize = rowFontSize;
 #else
   float rowFontSize = 12;
   float titleFontSize = 12;
@@ -296,7 +299,9 @@ void Overlay::Update() {
   }
 
   if( showable && Hearthstone::Instance()->HasFocus() ) {
+#ifndef Q_OS_LINUX
     hide(); // Minimize/Restore on Windows requires a hide() first
+#endif
     show();
 #ifdef Q_OS_WIN
     setAttribute( Qt::WA_QuitOnClose ); // otherwise taskkill /IM Track-o-Bot.exe does not work (http://www.qtcentre.org/threads/11713-Qt-Tool?p=62466#post62466)

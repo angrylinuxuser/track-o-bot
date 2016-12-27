@@ -138,9 +138,9 @@ void Window::CreateActions() {
   mGameClientRestartRequiredAction->setEnabled( false );
 
 #ifdef Q_OS_LINUX
-  mOpenProfileAction->setIcon( QIcon::fromTheme( "applications-internet" ) );
-  mShowAction->setIcon( QIcon::fromTheme( "preferences-system" ) );
-  mQuitAction->setIcon( QIcon::fromTheme( "application-exit" ) );
+  mOpenProfileAction->setIcon( QIcon::fromTheme( "applications-internet", QIcon( ":/icons/applications-internet.png" ) ) );
+  mShowAction->setIcon( QIcon::fromTheme( "preferences-system", QIcon( ":/icons/preferences-system.png" ) ) );
+  mQuitAction->setIcon( QIcon::fromTheme( "application-exit" , QIcon( ":/icons/system-log-out.png" ) ) );
 #endif
 }
 
