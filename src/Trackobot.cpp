@@ -192,7 +192,5 @@ void Trackobot::Initialize() {
 
   // Enable HS Logging
   Hearthstone::Instance()->EnableLogging();
-
-  // Create Result Tracker
 }
 
