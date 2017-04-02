@@ -22,6 +22,7 @@
 #include "LinuxWindowCapture.h"
 #include "Settings.h"
 #include "WineBottle.h"
+#include "PeVersionExtractor.h"
 #endif
 
 #include "Settings.h"
@@ -429,6 +430,10 @@ int Hearthstone::DetectBuild() const {
 #elif defined Q_OS_WIN
     buildPath = QString( "%1/Hearthstone.exe" ).arg( hsPath );
       build = Win32ExtractBuildFromPE( buildPath.toStdWString().c_str() );
+#elif defined Q_OS_LINUX
+    buildPath = QString( "%1/Hearthstone.exe").arg( hsPath );
+    PeVersionExtractor extractor( buildPath );
+    build = extractor.extract();
 #endif
   }
   return build;
