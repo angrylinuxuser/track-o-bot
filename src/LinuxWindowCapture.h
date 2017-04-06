@@ -12,10 +12,11 @@ Q_OBJECT
 private:
   xcb_window_t mWindow;
   QRect   mRect;
+  bool mFocus;
 
-  xcb_window_t FindWindow( const QString& wmName, const QString& wmClass );
-  QList< xcb_window_t > listWindowsRecursive( const xcb_window_t& window );
-  bool WindowRect();
+  static xcb_window_t FindWindow( const QString& wmName, const QString& wmClass );
+  static QList< xcb_window_t > listWindowsRecursive( const xcb_window_t& window );
+  static bool ExtractWindowProperties( xcb_window_t winId, QRect *winRect, bool *focus );
 
 public:
   LinuxWindowCapture();

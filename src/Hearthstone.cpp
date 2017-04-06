@@ -22,6 +22,7 @@
 #include "LinuxWindowCapture.h"
 #include "Settings.h"
 #include "WineBottle.h"
+#include "PeVersionExtractor.h"
 #endif
 
 #include "Settings.h"
@@ -29,7 +30,7 @@
 DEFINE_SINGLETON_SCOPE( Hearthstone );
 
 Hearthstone::Hearthstone()
- : mCapture( NULL ), mGameRunning( false ), mGameHasFocus( false )
+ : mCapture( NULL ), mGameRunning( false ), mGameHasFocus( false ), mBuild( 0 )
 {
 #ifdef Q_OS_MAC
     LOG("OS X host");
@@ -47,6 +48,7 @@ Hearthstone::Hearthstone()
   // So just check only once in a while
   mTimer = new QTimer( this );
   connect( mTimer, &QTimer::timeout, this, &Hearthstone::Update );
+  connect( this, &Hearthstone::GameStarted, this, &Hearthstone::DetectBuild );
 #ifdef Q_OS_LINUX
   connect( this, &Hearthstone::GameStarted, this, &Hearthstone::SetFastUpdates );
   connect( this, &Hearthstone::GameStopped, this, &Hearthstone::SetSlowUpdates );
@@ -260,8 +262,7 @@ QString Hearthstone::LogConfigPath() const {
   if ( !Wine->IsValid() )
     LOG( "Invalid wine prefix. Cannot determine path for log.config" );
   else {
-    QString path =
-        Wine->ReadRegistryValue( "HKEY_USERS/.Default/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders/Local AppData" ).toString();
+    QString path = Wine->ReadRegistryValue( REG_KEY_LOCAL_APPDATA ).toString();
     localAppData = Wine->ToSystemPath( path );
   }
 #endif
@@ -274,11 +275,13 @@ QString Hearthstone::DetectHearthstonePath() const {
 
 #ifdef Q_OS_LINUX
   if( hsPath.isEmpty() ) {
-      QString path = Wine->ReadRegistryValue( "HKEY_LOCAL_MACHINE/Software/Microsoft/Windows/CurrentVersion/Uninstall/Hearthstone/InstallLocation" ).toString();
-      if ( path.isEmpty() )
-          LOG( "Game folder not found (%s). You should set the path manually in the settings!", qt2cstr( path ) );
-      else
+      QString path = Wine->ReadRegistryValue( REG_KEY_HS_INSTALL_LOCATION ).toString();
+      if ( path.isEmpty() ) {
+          ERR( "Game folder not found (%s). Is the wine prefix configured correctly?", qt2cstr( path ) );
+      }
+      else {
         hsPath = Wine->ToSystemPath( path );
+      }
   }
 #elif defined Q_OS_WIN
     if( hsPath.isEmpty() ) {
@@ -330,9 +333,8 @@ QString Hearthstone::DetectRegion() const {
     DBG( "Cannot detect region. Wine prefix is not valid!" );
     return region;
   }
-  QString path = Wine->ToSystemPath(
-           Wine->ReadRegistryValue( "HKEY_USERS/.Default/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders/AppData" ).toString()
-                   ).append( "/Battle.net/" );
+  QString path = Wine->ToSystemPath( Wine->ReadRegistryValue( REG_KEY_APPDATA ).toString() )
+                 .append( "/Battle.net/" );
 #endif
 
   QDirIterator it( path, QStringList() << "*.config" );
@@ -379,6 +381,10 @@ QString Hearthstone::DetectRegion() const {
   return region;
 }
 
+int Hearthstone::Build() const {
+  return mBuild;
+}
+
 #ifdef Q_OS_WIN
 // http://stackoverflow.com/questions/940707/how-do-i-programatically-get-the-version-of-a-dll-or-exe-file
 int Win32ExtractBuildFromPE( const wchar_t *szVersionFile ) {
@@ -412,8 +418,7 @@ int Win32ExtractBuildFromPE( const wchar_t *szVersionFile ) {
 }
 #endif
 
-int Hearthstone::DetectBuild() const {
-  int build = 0;
+void Hearthstone::DetectBuild() {
   QString hsPath = Settings::Instance()->HearthstoneDirectoryPath();
   QString buildPath;
 
@@ -424,14 +429,17 @@ int Hearthstone::DetectBuild() const {
     QString version = settings.value( "BlizzardFileVersion", "1.0.0.0" ).toString();
 
     if( !version.isEmpty() ) {
-      build = version.split(".").last().toInt();
+      mBuild = version.split(".").last().toInt();
     }
 #elif defined Q_OS_WIN
     buildPath = QString( "%1/Hearthstone.exe" ).arg( hsPath );
-      build = Win32ExtractBuildFromPE( buildPath.toStdWString().c_str() );
+      mBuild = Win32ExtractBuildFromPE( buildPath.toStdWString().c_str() );
+#elif defined Q_OS_LINUX
+    buildPath = QString( "%1/Hearthstone.exe").arg( hsPath );
+    PeVersionExtractor extractor( buildPath );
+    mBuild = extractor.extract();
 #endif
   }
-  return build;
 }
 
 QString Hearthstone::DetectLocale() const {

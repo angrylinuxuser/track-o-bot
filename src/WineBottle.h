@@ -31,6 +31,10 @@
 #define USERDEF_REG "userdef.reg"
 #define USERDEF_REG_ID 2
 
+#define REG_KEY_LOCAL_APPDATA "HKEY_USERS/.Default/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders/Local AppData"
+#define REG_KEY_HS_INSTALL_LOCATION "HKEY_LOCAL_MACHINE/Software/Microsoft/Windows/CurrentVersion/Uninstall/Hearthstone/InstallLocation"
+#define REG_KEY_APPDATA "HKEY_USERS/.Default/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders/AppData"
+
 class QTextStream;
 
 class WineBottle {

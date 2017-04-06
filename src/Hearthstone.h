@@ -27,9 +27,10 @@ private:
   bool mRestartRequired; // in case HS needs to be restarted for log changes to take effect
   bool mGameRunning;
   bool mGameHasFocus;
+  int mBuild;
 
   QString ReadAgentAttribute( const char *attributeName ) const;
-
+  void DetectBuild();
   QTimer *mTimer;
 
 public:
@@ -47,7 +48,7 @@ public:
   QString DetectHearthstonePath() const;
   QString DetectWinePrefixPath() const;
   QString DetectRegion() const;
-  int DetectBuild() const;
+  int Build() const;
   QString DetectLocale() const;
 
   int Width() const;
