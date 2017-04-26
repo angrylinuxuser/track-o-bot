@@ -35,7 +35,7 @@ Trackobot::Trackobot( int& argc, char **argv )
 {
   SetupApplication();
 #ifdef Q_OS_LINUX
-  Wine->SetPath( Settings::Instance()->WinePrefixPath() );
+  WinePrefix->SetPath( Settings::Instance()->WinePrefixPath() );
 #endif
   mWebProfile = new WebProfile( this );
   mResultTracker = new ResultTracker( this );

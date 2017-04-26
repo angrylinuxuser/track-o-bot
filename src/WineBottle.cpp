@@ -2,23 +2,55 @@
 #include <QRegularExpression>
 #include <QTextStream>
 #include <QDirIterator>
-#include <QDebug>
 #include "WineBottle.h"
 
-#define DOSDEVICES "dosdevices"
-#define DRIVE_C "drive_c"
+#include "Local.h"  // error reporting
 
 DEFINE_SINGLETON_SCOPE( WineBottle )
 
+
+namespace {
+/*
+const int REG_NONE = 0;                 // no type
+const int REG_SZ = 1;                 	// string type (ASCII)
+const int REG_EXPAND_SZ = 2;	          // string, includes %ENVVAR% (expanded by caller) (ASCII)
+const int REG_BINARY = 3;	              // binary format, callerspecific
+// YES, REG_DWORD == REG_DWORD_LITTLE_ENDIAN
+const int REG_DWORD = 4;	              // DWORD in little endian format
+const int REG_DWORD_LITTLE_ENDIAN = 4;	// DWORD in little endian format
+const int REG_DWORD_BIG_ENDIAN = 5;	    // DWORD in big endian format
+const int REG_LINK = 6;	                // symbolic link (UNICODE)
+const int REG_MULTI_SZ = 7;	            // multiple strings, delimited by \0, terminated by \0\0 (ASCII)
+const int REG_RESOURCE_LIST = 8;	      // resource list? huh?
+const int REG_FULL_RESOURCE_DESCRIPTOR= 9;	// full resource descriptor? huh?
+const int REG_RESOURCE_REQUIREMENTS_LIST = 10;
+const int REG_QWORD = 11;	              // QWORD in little endian format
+const int REG_QWORD_LITTLE_ENDIAN =	11;	// QWORD in little endian format
+*/
+const int MAX_REG_FILES = 3;
+const QString SYSTEM_REG( "system.reg" );
+//const int SYSTEM_REG_ID = 0;
+const QString USER_REG( "user.reg" );
+//const int USER_REG_ID = 1;
+const QString USERDEF_REG( "userdef.reg" );
+//const int USERDEF_REG_ID = 2;
+
+const QString REG_KEY_LOCAL_APPDATA( "HKEY_USERS/.Default/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders/Local AppData" );
+const QString REG_KEY_HS_INSTALL_LOCATION( "HKEY_LOCAL_MACHINE/Software/Microsoft/Windows/CurrentVersion/Uninstall/Hearthstone/InstallLocation" );
+const QString REG_KEY_APPDATA( "HKEY_USERS/.Default/Software/Microsoft/Windows/CurrentVersion/Explorer/Shell Folders/AppData" );
+
+const QString DOSDEVICES( "dosdevices" );
+const QString DRIVE_C( "drive_c" );
+
+}
+
 WineBottle::WineBottle()
-  : mRegFiles{ nullptr, nullptr, nullptr },
+  : mRegFiles ( QVector< QPointer< QSettings >>( ( QPointer< QSettings >( nullptr ), 3 ) ) ),
     mRegFormat( QSettings::registerFormat( "reg", ReadWineRegFile, WriteWineRegFile ) ) {
 }
 
 WineBottle::~WineBottle() {
-  for ( QSettings* s: mRegFiles ) {
-    if ( s ) delete s;
-  }
+  mRegFiles.clear();
 }
 
 void WineBottle::SetPath( const QString& path )
@@ -37,10 +69,13 @@ void WineBottle::SetPath( const QString& path )
 
   if ( ( mIsValid = difference.size() ? false : true ) ) {
     SetupDosDevices();
+    SetupRegFiles();
   }
   else {
     ERR( "Directory: %s is not a valid wine prefix!", qt2cstr( path ) );
   }
+
+
 }
 
 const QString& WineBottle::Path() const {
@@ -57,32 +92,42 @@ bool WineBottle::IsValid() const {
 
 bool WineBottle::WriteWineRegFile( QIODevice& device, const QSettings::SettingsMap& map )
 {
-  UNUSED_ARG( device );
-  UNUSED_ARG( map );
+  Q_UNUSED( device );
+  Q_UNUSED( map );
   Q_ASSERT_X( true, "WineBottle::WriteWineRegFile",
               "Dummy metod: this method is not implemented!" );
   return false;
 }
 
-QVariant WineBottle::ReadRegistryValue( const QString& key ) {
+void WineBottle::SetupRegFiles() {
   const QString reg_files[ MAX_REG_FILES ] = { SYSTEM_REG, USER_REG, USERDEF_REG };
   for( auto id = 0; id < MAX_REG_FILES; ++id ) {
-    if ( !mRegFiles[ id ] )  {
+    if ( !mRegFiles.at( id ) ) {
       mRegFiles[ id ] = new QSettings( mWinePrefix + "/" + reg_files[ id ], mRegFormat );
     }
-    if ( mRegFiles[ id ]->value( key ).isValid() )
+  }
+}
+
+QVariant WineBottle::ReadRegistryValue( const QString& key ) const {
+  const QString reg_files[ MAX_REG_FILES ] = { SYSTEM_REG, USER_REG, USERDEF_REG };
+  for( auto id = 0; id < MAX_REG_FILES; ++id ) {
+    if ( mRegFiles[ id ]->value( key ).isValid() ) {
       return mRegFiles[ id ]->value( key );
+    }
   }
   return QVariant();
 }
 
-void WineBottle::ResetRegFile( int id ) {
-  if( id >= 0  && id < MAX_REG_FILES ) {
-    if ( mRegFiles[ id ] ) {
-      delete mRegFiles[ id ];
-      mRegFiles[ id ] = nullptr;
-    }
-  }
+QString WineBottle::LocalAppData() const {
+  return ToSystemPath( ReadRegistryValue( REG_KEY_LOCAL_APPDATA ).toString() );
+}
+
+QString WineBottle::HearthstoneInstallLocation() const {
+  return ToSystemPath( ReadRegistryValue( REG_KEY_HS_INSTALL_LOCATION ).toString() );
+}
+
+QString WineBottle::AppData() const {
+  return ToSystemPath( ReadRegistryValue( REG_KEY_APPDATA ).toString() );
 }
 
 QString WineBottle::ToSystemPath( const QString& windowsStylePath ) const {
@@ -98,7 +143,7 @@ QString WineBottle::ToSystemPath( const QString& windowsStylePath ) const {
 
 void WineBottle::SetupDosDevices() {
   QRegularExpression driveReg( "^[a-zA-Z]:$" );
-  QDirIterator dirItr( mWinePrefix + "/" DOSDEVICES, QDirIterator::FollowSymlinks	);
+  QDirIterator dirItr( mWinePrefix + "/" +  DOSDEVICES, QDirIterator::FollowSymlinks	);
 
   while( dirItr.hasNext() ) {
     dirItr.next();
@@ -143,7 +188,7 @@ bool WineBottle::ReadWineRegFile( QIODevice& device, QSettings::SettingsMap& map
     defaultPrefix = "HKEY_CURRENT_USER/";
   }
   else {
-    qDebug() << "Error: Could not determine prefix!";
+    ERR( "%s: Couldn't determin prefix ", Q_FUNC_INFO );
     return false;
   }
 
