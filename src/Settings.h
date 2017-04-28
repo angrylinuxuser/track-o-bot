@@ -42,7 +42,8 @@ public:
 
   QString HearthstoneDirectoryPath() const;
   void SetHearthstoneDirectoryPath( const QString& path );
-
+#ifdef Q_OS_LINUX
   QString WinePrefixPath() const;
   void SetWinePrefixPath( const QString& path );
+#endif
 };

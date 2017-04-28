@@ -467,6 +467,7 @@ int Hearthstone::Height() const {
   return mCapture->Height();
 }
 
+#ifdef Q_OS_LINUX
 QString Hearthstone::DetectWinePrefixPath() const
 {
   static QString winePrefix;
@@ -481,6 +482,7 @@ QString Hearthstone::DetectWinePrefixPath() const
   }
   return winePrefix;
 }
+#endif
 
 bool Hearthstone::HasFocus() const {
   return mGameHasFocus;

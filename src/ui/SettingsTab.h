@@ -25,6 +25,8 @@ public slots:
   void UpdateOverlayEnabled();
   void SelectHearthstoneDirectoryPath();
   void LoadSettings();
+#ifdef Q_OS_LINUX
   void SelectWinePrefixPath();
+#endif
 };
 

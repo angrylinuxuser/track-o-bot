@@ -81,6 +81,7 @@ void SettingsTab::SelectHearthstoneDirectoryPath() {
   }
 }
 
+#ifdef Q_OS_LINUX
 void SettingsTab::SelectWinePrefixPath()
 {
   QString currentPath = Settings::Instance()->WinePrefixPath();
@@ -98,3 +99,4 @@ void SettingsTab::SelectWinePrefixPath()
     msgBox.exec();
   }
 }
+#endif
