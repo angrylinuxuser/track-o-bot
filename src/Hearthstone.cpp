@@ -435,9 +435,7 @@ void Hearthstone::DetectBuild() {
     buildPath = QString( "%1/Hearthstone.exe" ).arg( hsPath );
       mBuild = Win32ExtractBuildFromPE( buildPath.toStdWString().c_str() );
 #elif defined Q_OS_LINUX
-    buildPath = QString( "%1/Hearthstone.exe").arg( hsPath );
-    PeVersionExtractor extractor( buildPath );
-    mBuild = extractor.extract();
+    mBuild = PeVersionExtractor::Extract( QString( "%1/Hearthstone.exe" ).arg( hsPath ) );
 #endif
   }
 }
