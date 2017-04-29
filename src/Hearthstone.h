@@ -46,7 +46,9 @@ public:
 
   QString LogConfigPath() const;
   QString DetectHearthstonePath() const;
+#ifdef Q_OS_LINUX
   QString DetectWinePrefixPath() const;
+#endif
   QString DetectRegion() const;
   int Build() const;
   QString DetectLocale() const;

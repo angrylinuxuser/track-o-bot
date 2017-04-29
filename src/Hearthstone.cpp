@@ -48,8 +48,8 @@ Hearthstone::Hearthstone()
   // So just check only once in a while
   mTimer = new QTimer( this );
   connect( mTimer, &QTimer::timeout, this, &Hearthstone::Update );
-  connect( this, &Hearthstone::GameStarted, this, &Hearthstone::DetectBuild );
 #ifdef Q_OS_LINUX
+  connect( this, &Hearthstone::GameStarted, this, &Hearthstone::DetectBuild );
   connect( this, &Hearthstone::GameStarted, this, &Hearthstone::SetFastUpdates );
   connect( this, &Hearthstone::GameStopped, this, &Hearthstone::SetSlowUpdates );
   mTimer->start( 5000 );
@@ -259,11 +259,10 @@ QString Hearthstone::LogConfigPath() const {
   QString localAppData = QString::fromWCharArray( buffer );
 #elif defined Q_OS_LINUX
   QString localAppData;
-  if ( !Wine->IsValid() )
-    LOG( "Invalid wine prefix. Cannot determine path for log.config" );
+  if ( !WinePrefix->IsValid() )
+    LOG( "Invalid wine prefix. Cannot determin path for log.config" );
   else {
-    QString path = Wine->ReadRegistryValue( REG_KEY_LOCAL_APPDATA ).toString();
-    localAppData = Wine->ToSystemPath( path );
+    localAppData = WinePrefix->LocalAppData();
   }
 #endif
   QString configPath = localAppData + "/Blizzard/Hearthstone/log.config";
@@ -275,12 +274,9 @@ QString Hearthstone::DetectHearthstonePath() const {
 
 #ifdef Q_OS_LINUX
   if( hsPath.isEmpty() ) {
-      QString path = Wine->ReadRegistryValue( REG_KEY_HS_INSTALL_LOCATION ).toString();
-      if ( path.isEmpty() ) {
-          ERR( "Game folder not found (%s). Is the wine prefix configured correctly?", qt2cstr( path ) );
-      }
-      else {
-        hsPath = Wine->ToSystemPath( path );
+      hsPath = WinePrefix->HearthstoneInstallLocation();
+      if ( hsPath.isEmpty() ) {
+          ERR( "Game folder not found (%s). Is the wine prefix configured correctly?", qt2cstr( hsPath ) );
       }
   }
 #elif defined Q_OS_WIN
@@ -329,12 +325,17 @@ QString Hearthstone::DetectRegion() const {
   QString localAppData = QString::fromWCharArray( buffer );
   QString path = localAppData + "/Battle.net/";
 #elif defined Q_OS_LINUX
-  if ( !Wine->IsValid() ) {
-    DBG( "Cannot detect region. Wine prefix is not valid!" );
+  if ( !WinePrefix->IsValid() ) {
+    DBG( "Cannot detect region. Is Wine prefix valid?" );
     return region;
   }
-  QString path = Wine->ToSystemPath( Wine->ReadRegistryValue( REG_KEY_APPDATA ).toString() )
-                 .append( "/Battle.net/" );
+  QString path = WinePrefix->AppData();
+  if ( path.isEmpty() ) {
+    ERR( "Couldn't resolve App Data directory from wine registry!" );
+    return region;
+  } else {
+    path.append( "/Battle.net/" );
+  }
 #endif
 
   QDirIterator it( path, QStringList() << "*.config" );
@@ -435,9 +436,7 @@ void Hearthstone::DetectBuild() {
     buildPath = QString( "%1/Hearthstone.exe" ).arg( hsPath );
       mBuild = Win32ExtractBuildFromPE( buildPath.toStdWString().c_str() );
 #elif defined Q_OS_LINUX
-    buildPath = QString( "%1/Hearthstone.exe").arg( hsPath );
-    PeVersionExtractor extractor( buildPath );
-    mBuild = extractor.extract();
+    mBuild = PeVersionExtractor::Extract( QString( "%1/Hearthstone.exe" ).arg( hsPath ) );
 #endif
   }
 }
@@ -467,20 +466,22 @@ int Hearthstone::Height() const {
   return mCapture->Height();
 }
 
+#ifdef Q_OS_LINUX
 QString Hearthstone::DetectWinePrefixPath() const
 {
   static QString winePrefix;
 
   if ( winePrefix.isEmpty() ) {
     // default prefix
-    Wine->SetPath( QDir::homePath() + "/.wine" );
-    if ( Wine->IsValid() )
-      winePrefix = Wine->Path();
+    WinePrefix->SetPath( QDir::homePath() + "/.wine" );
+    if ( WinePrefix->IsValid() )
+      winePrefix = WinePrefix->Path();
     else
       ERR( "Couldn't detect Wine prefix path!" );
   }
   return winePrefix;
 }
+#endif
 
 bool Hearthstone::HasFocus() const {
   return mGameHasFocus;
