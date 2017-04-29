@@ -48,8 +48,8 @@ Hearthstone::Hearthstone()
   // So just check only once in a while
   mTimer = new QTimer( this );
   connect( mTimer, &QTimer::timeout, this, &Hearthstone::Update );
-  connect( this, &Hearthstone::GameStarted, this, &Hearthstone::DetectBuild );
 #ifdef Q_OS_LINUX
+  connect( this, &Hearthstone::GameStarted, this, &Hearthstone::DetectBuild );
   connect( this, &Hearthstone::GameStarted, this, &Hearthstone::SetFastUpdates );
   connect( this, &Hearthstone::GameStopped, this, &Hearthstone::SetSlowUpdates );
   mTimer->start( 5000 );
